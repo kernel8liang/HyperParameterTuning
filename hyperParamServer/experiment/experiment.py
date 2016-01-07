@@ -5,19 +5,23 @@ import pickle
 from collections import defaultdict
 from funkyyak import grad, kylist, getval
 
-import hypergrad.mnist as mnist
+import hyperParamServer.loaddataSubClass as loadData
 from hypergrad.mnist import random_partition
 from hypergrad.nn_utils import make_nn_funs, VectorParser
 from hypergrad.optimizers import sgd_meta_only as sgd
 from hypergrad.util import RandomState, dictslice, dictmap
 
-layer_sizes = [784, 10]
+
+classNum = 4
+layer_sizes = [784, classNum]
 N_layers = len(layer_sizes) - 1
 batch_size = 50
 N_iters = 200  #epoch
-N_train = 10**2 * 2
-N_valid = 10**2
-N_tests = 10**3
+# 50000 training samples, 10000 validation samples, 10000 testing samples
+N_train = 10**4 * 5
+N_valid = 10**4
+N_tests = 10**4
+
 all_N_meta_iter = [10, 5, 3]
 alpha = 1.0
 meta_alpha = 10**4
@@ -27,10 +31,20 @@ N_thin = 50
 N_meta_thin = 1
 log_L2_init = -6.0
 
+
+classIndexList = [2,4,5,6,7]
+
 def run():
     RS = RandomState((seed, "top_rs"))
-    all_data = mnist.load_data_as_dict()
-    train_data, tests_data = random_partition(all_data, RS, [N_train, N_tests])
+    data = loadData.loadMnist()
+    train_data, tests_data, N_train, N_tests  = loadData.load_data_as_dict(data, 10, subClassIndexList=[1,2,3,4])
+
+    N_valid = N_tests
+
+    # train_data= random_partition(train_data, RS, [N_train]).__getitem__(0)
+    # tests_data= random_partition(tests_data, RS, [N_tests]).__getitem__(0)
+    print "training samples {0}: testing samples: {1}".format(N_train,N_tests)
+
     w_parser, pred_fun, loss_fun, frac_err = make_nn_funs(layer_sizes)
     N_weights = w_parser.vect.size
     init_scales = w_parser.new_vect(np.zeros(N_weights))
