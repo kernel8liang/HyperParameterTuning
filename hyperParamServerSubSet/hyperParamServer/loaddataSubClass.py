@@ -9,7 +9,7 @@ from hypergrad.util import dictslice
 import itertools
 
 def datapath(fname):
-    datadir = os.path.expanduser('~/PycharmProjects/hyerParameterTuning/hypergrad/data/mnist')
+    datadir = os.path.expanduser('/home/jie/d3/fujie/hyper_parameter_tuning/hypergrad/data/mnist')
     return os.path.join(datadir, fname)
 
 #load data as dictionary
@@ -73,6 +73,31 @@ def select_subclassdata(X, y,totalClassNum,SubClassNum, subClassIndexList,normal
     for k, v in d1.iteritems():
         np.place(y,y==k,v)
     return X,y
+
+
+
+def loadSubsetData(data, RS, subset_sizes, clientNum):
+    N_rows = data['X'].shape[0]
+    partitions = []
+
+    countPre = 0
+    for i in range (0,clientNum):
+
+        Count = (i*subset_sizes)/N_rows
+        if Count> countPre:
+            data = dictslice(data, RS.permutation(N_rows))
+            countPre = Count
+        startNum = (i*subset_sizes)%N_rows
+        if (startNum+subset_sizes) > N_rows:
+            idxs = slice(startNum, N_rows)
+            idxs1 = slice(0, (N_rows-startNum))
+            subset = list(itertools.chain(*zip(dictslice(data, idxs), dictslice(data,idxs1))))
+        else:
+            idxs = slice(startNum, startNum + subset_sizes)
+            subset = dictslice(data, idxs)
+        partitions.append(subset)
+    return partitions
+
 
 
 def loadMnist():

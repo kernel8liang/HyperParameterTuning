@@ -23,9 +23,9 @@ N_iters = 1000  #epoch
 # N_valid = 10**4
 # N_tests = 10**4
 
-N_train = 10**4*2
-N_valid = 10**3*5
-N_tests = 10**4
+N_train = 10**4*2 *3
+N_valid = 10**3*5 *3
+N_tests = 10**4 *3
 
 all_N_meta_iter = [50, 0, 0]#epoch
 
@@ -49,11 +49,11 @@ def run( ):
     RS = RandomState((seed, "to p_rs"))
     data = loadData.loadMnist()
     train_data, tests_data = loadData.load_data_as_dict(data, classNum)
-    train_data = random_partition(train_data, RS, [N_train*3]).__getitem__(0)
-    tests_data = random_partition(tests_data, RS, [ N_tests*3]).__getitem__(0)
+    train_data = random_partition(train_data, RS, [N_train]).__getitem__(0)
+    tests_data = random_partition(tests_data, RS, [ N_tests]).__getitem__(0)
 
 
-    print "training samples {0}: testing samples: {1}".format(N_train*3,N_tests*3)
+    print "training samples {0}: testing samples: {1}".format(N_train,N_tests)
 
 
     w_parser, pred_fun, loss_fun, frac_err = make_nn_funs(layer_sizes)

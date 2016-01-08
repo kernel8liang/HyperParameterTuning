@@ -6,6 +6,7 @@ from collections import defaultdict
 from funkyyak import grad, kylist, getval
 
 import hyperParamServer.loaddataSubClass as loadData
+from hyperParamServer.loaddataSubClass import loadSubsetData
 from hypergrad.mnist import random_partition
 from hypergrad.nn_utils import make_nn_funs, VectorParser
 from hypergrad.optimizers import sgd_meta_only as sgd
@@ -105,17 +106,11 @@ def run( ):
     data = loadData.loadMnist()
 
     train_data_subclass = []
-    test_data_subclass = []
 
     train_data, tests_data = loadData.load_data_as_dict(data, classNum)
-    train_data = random_partition(train_data, RS, [N_train*3]).__getitem__(0)
-    tests_data = random_partition(tests_data, RS, [ N_tests*3]).__getitem__(0)
 
-    for i in range (0,clientNum):
-        temp_train_data = random_partition(train_data, RS, [N_train]).__getitem__(0)
-        temp_test_data = random_partition(tests_data, RS, [N_train]).__getitem__(0)
-        train_data_subclass.append(temp_train_data)
-        test_data_subclass.append(temp_test_data)
+
+    train_data_subclass= loadSubsetData(train_data,RS, N_train, clientNum)
 
     print "training samples {0}: testing samples: {1}".format(N_train,N_tests)
 
