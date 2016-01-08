@@ -48,8 +48,8 @@ def load_data_as_dict(data,totalClassNum, subClassIndexList={}, normalize=True )
     partitions = []
     partitions.append({'X' : X_train, 'T' : Y_train})
     partitions.append({'X' : X_test, 'T' : Y_test})
-    partitions.append(N_data_train)
-    partitions.append(N_data_test)
+    # partitions.append(N_data_train)
+    # partitions.append(N_data_test)
 
     return partitions
 
