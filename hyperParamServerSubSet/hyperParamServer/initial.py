@@ -27,7 +27,7 @@ N_train = 10**4*2
 N_valid = 10**3*5
 N_tests = 10**4
 
-all_N_meta_iter = [10, 0, 0]
+all_N_meta_iter = [50, 0, 0]#epoch
 
 clientNum = 3
 
@@ -39,7 +39,7 @@ beta = 0.8
 seed = 0
 
 #  print the output every N_thin iterations
-N_thin = 50
+N_thin = 200
 N_meta_thin = 1
 log_L2_init = -6.0
 
