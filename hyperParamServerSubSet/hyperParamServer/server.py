@@ -45,7 +45,7 @@ beta = 0.8
 seed = 0
 
 #  print the output every N_thin iterations
-N_thin = 200
+N_thin = 999
 N_meta_thin = 1
 log_L2_init = -6.0
 
@@ -152,10 +152,11 @@ def run( ):
                 raw_grad = hypergrad(cur_reg, i_hyper, *cur_split)
                 constrained_grad = constrain_reg(w_parser, raw_grad, constraint)
 
-                print "\n"
+
                 # cur_reg -= constrained_grad / np.abs(constrained_grad + 1e-8) * meta_alpha
                 cur_reg -= constrained_grad * meta_alpha/clientNum
             # print "constrained_grad",constrained_grad
+            print "\n"
         return cur_reg
 
 
