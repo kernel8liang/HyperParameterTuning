@@ -6,8 +6,9 @@ import os
 
 
 def resultFile(fname):
-    resultFile = os.path.expanduser('~/Desktop/hyper_parameter_tuning/hyperParamServerSubClass/data')
+    resultFile = os.path.expanduser('/home/jie/d3/fujie/hyper_parameter_tuning/hyperParamServerSubSet/data')
     return os.path.join(resultFile, fname)
+
 
 
 def plotNeonExperiment():
@@ -144,38 +145,39 @@ def plotKerasExperimentcifar100():
         plt.savefig(output_plot)
         plt.close()
 
-def resultFile():
+def plotResultFile():
 
     index = 1
-    for experiment_number in range(1,index+1):
-        outputPath_part_final = os.path.realpath( "/home/jie/docker_folder/random_keras/output_cifar100_mlp_subset/hyperopt_experiment_1/error.txt")
-        output_plot = os.path.realpath(
-                "/home/jie/docker_folder/random_keras/output_cifar100_mlp_subset/hyperopt_experiment_1/plotErrorCurve" + ".pdf")
 
-        df = pd.read_csv(outputPath_part_final,delimiter='\t',header=None)
-        df.drop(df.columns[[250]], axis=1, inplace=True)
+    outputPath_part_final = resultFile("resultSheet.xml")
+    output_plot =  resultFile("result.pdf")
 
-        i=1
-        epochnum = []
-        while i<=250:
-            epochnum.append(i)
-            i = i+1
-        i=0
-        while i<50:
-            i = i+1
-        while i<60:
-            df_1=df[df.columns[0:250]].ix[i]
-            np.reshape(df_1, (1,250))
-            plt.plot(epochnum,df_1)
+    # df = pd.read_csv(outputPath_part_final,delimiter='\t')
+    df = pd.read_csv(outputPath_part_final, error_bad_lines=False)
+    df.drop(df.columns[[250]], axis=1, inplace=True)
 
-            i = i+1
-        # plt.show()
-        plt.show()
-        plt.savefig(output_plot)
-        plt.close()
+    i=1
+    epochnum = []
+    while i<=250:
+        epochnum.append(i)
+        i = i+1
+    i=0
+    while i<50:
+        i = i+1
+    while i<60:
+        df_1=df[df.columns[0:250]].ix[i]
+        np.reshape(df_1, (1,250))
+        plt.plot(epochnum,df_1)
+
+        i = i+1
+    # plt.show()
+    plt.show()
+    plt.savefig(output_plot)
+    plt.close()
 
 
 
 if __name__ == '__main__':
     # main()
-    plotKerasExperimentcifar100()
+    plotResultFile()
+    # plotKerasExperimentcifar100()
