@@ -27,6 +27,7 @@ from os.path import isfile, join
 sys.path.append(os.path.realpath(__file__))
 project_dir = os.environ['EXPERI_PROJECT_PATH']
 sys.path.append(project_dir)
+sys.path.append(project_dir+"/hyperParamServerSubSet")
 sys.path.append(project_dir+"/library/spearmint")
 sys.path.append(project_dir+"/library/spearmint/spearmint")
 
