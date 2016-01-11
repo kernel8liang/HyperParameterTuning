@@ -1,0 +1,3 @@
+medianLayer1: !hyperopt mo FLOAT 0.5 0.9
+medianLayer2: !hyperopt mo FLOAT 0.5 0.9
+medianLayer3: !hyperopt mo FLOAT 0.5 0.9
