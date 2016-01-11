@@ -1,0 +1,8 @@
+learning-rate: !hyperopt lr FLOAT 0.01 0.1,
+InputShape1: !hyperopt is1 INT 3 9,
+InputShape2: !hyperopt is2 INT 3 9,
+InputShape3: !hyperopt is3 INT 3 9,
+InputShape4: !hyperopt is4 INT 3 9,
+poolingsize1: !hyperopt ps1 INT 2 4,
+poolingsize2: !hyperopt ps2 INT 2 4,
+momentum: !hyperopt mo FLOAT 0.5 0.9
