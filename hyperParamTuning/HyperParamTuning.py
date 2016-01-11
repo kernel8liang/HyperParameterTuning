@@ -124,7 +124,7 @@ def main():
 
     project_dir = os.environ['EXPERI_PROJECT_PATH']
     sys.path.append(project_dir)
-    sys.path.append(project_dir+"library/spearmint")
+    sys.path.append(project_dir+"/library/spearmint")
 
     log("experiment_config is: " + args[0]);
 
