@@ -107,7 +107,7 @@ def get_available_port(portnum):
 def start_web_view(options, experiment_config, chooser):
     '''Start the web view in a separate process.'''
 
-    from web.app import app
+    from spearmint.web.app import app
     port = get_available_port(options.web_status_port)
     print "Using port: " + str(port)
     if options.web_status_host:
@@ -161,7 +161,7 @@ def main():
             fout.write("\t".join(np.array(map(str, classIndex))))
 
     # Load up the chooser module.
-    module  = importlib.import_module('chooser.' + options.chooser_module)
+    module  = importlib.import_module('spearmint.chooser.' + options.chooser_module)
     chooser = module.init(expt_dir, options.chooser_args)
 
     log("module is: "+options.chooser_module);
@@ -170,7 +170,7 @@ def main():
         web_proc = start_web_view(options, experiment_config, chooser)
 
     # Load up the job execution driver.
-    module = importlib.import_module('driver.' + options.driver)
+    module = importlib.import_module('spearmint.driver.' + options.driver)
     driver = module.init()
 
     #mode for user to choose: generate and test
