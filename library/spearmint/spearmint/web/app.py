@@ -6,8 +6,8 @@ import importlib
 from flask import Flask, render_template, redirect, url_for, Markup
 
 from spearmint.ExperimentGrid import ExperimentGrid
-from helpers import load_experiment
-from spearmint_pb2 import _LANGUAGE, _EXPERIMENT_PARAMETERSPEC_TYPE
+from spearmint.helpers import load_experiment
+from spearmint.spearmint_pb2 import _LANGUAGE, _EXPERIMENT_PARAMETERSPEC_TYPE
 
 
 class SpearmintWebApp(Flask):
