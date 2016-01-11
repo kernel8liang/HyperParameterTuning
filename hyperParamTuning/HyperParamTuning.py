@@ -25,6 +25,9 @@ from os.path import isfile, join
 # python lib.  For now though, this lets you symlink to supermint from your path and run it
 # from anywhere.
 sys.path.append(os.path.realpath(__file__))
+project_dir = os.environ['EXPERI_PROJECT_PATH']
+sys.path.append(project_dir)
+sys.path.append(project_dir+"/library/spearmint")
 
 from spearmint.ExperimentGrid  import *
 from spearmint.helpers         import *
