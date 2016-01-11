@@ -1,4 +1,4 @@
-"""Runs for paper"""
+"""use the parallel subset hyperparameter tuning method"""
 # feb-5 5
 import os
 import pickle
@@ -14,13 +14,25 @@ from hypergrad.nn_utils import make_nn_funs
 from hypergrad.optimizers import sgd_meta_only as sgd
 from hypergrad.util import RandomState, dictslice
 
+
+def main(job_id, params):
+    print('spear_wrapper job #:%s' % str(job_id))
+    print("spear_wrapper in directory: %s" % os.getcwd())
+    print("spear_wrapper params are:%s" % params)
+
+
+    # return run_cifar10(params)
+    return run(params)
+
+
+
 classNum = 10
 SubclassNum = 10
-layer_sizes = [784,200,SubclassNum]
+layer_sizes = [784,200,200,SubclassNum]
 N_layers = len(layer_sizes) - 1
 batch_size = 50
 
-N_iters = 300  #epoch
+N_iters = 3000  #epoch
 # 50000 training samples, 10000 validation samples, 10000 testing samples
 # N_train = 10**4 * 5
 # N_valid = 10**4
@@ -32,19 +44,19 @@ N_tests = 10**4
 
 all_N_meta_iter = [50, 0, 0]
 
-clientNum = 5
+clientNum = 3
 
 
-
-alpha = 1.0
-meta_alpha = 10**4
+# 0.05
+alpha = 0.005
+meta_alpha = 0.2
 beta = 0.8
 seed = 0
 
 #  print the output every N_thin iterations
 N_thin = 50
 N_meta_thin = 1
-log_L2_init = -6.0
+log_L2_init = -3.0
 
 
 def classIndexPath(fname):
@@ -93,32 +105,20 @@ def train_z(loss_fun, data, w_vect_0, reg):
         minibatch = dictslice(data, idxs)
         loss = loss_fun(w_vect, **minibatch)
         reg = regularization(w_vect, reg)
-        # if record_results and i_primal % N_thin == 0:
-        #     print "Iter {0}: train: {1}".format(i_primal, getval(loss))
+        if record_results and i_primal % N_thin == 0:
+            print "Iter {0}: train: {1}".format(i_primal, getval(loss))
         return loss + reg
     return sgd(grad(primal_loss), reg, w_vect_0, alpha, beta, N_iters)
 
+def run(params):
 
-def ModifiedGrad(fun,value, argnum=0):
-    def gradfun(*args, **kwargs):
-        tape = funkyyak.CalculationTape(funkyyak.top_tape(args))
-        start_node = funkyyak.Node(args[argnum], tape)
-        args = args[:argnum] + (start_node,) + args[argnum+1:]
-        end_node = fun(*args, **kwargs)
-        if not tape.hasmember(end_node):
-            return start_node.sum_outgrads()
-        if not isinstance(getval(end_node), float):
-            raise TypeError("Can only take gradient of scalar-valued functions")
-        else:
-            end_node.outgrads.append(1.0)
-            for node in tape[::-1]:
-                node.send_upstream()
-            return start_node.sum_outgrads()
-
-    return gradfun, value
+    medianLayer1= params['ml1'][0]
+    medianLayer2= params['ml2'][0]
+    medianLayer3= params['ml3'][0]
+    medianLayer4= params['ml4'][0]
 
 
-def run( ):
+
     RS = RandomState((seed, "to p_rs"))
     data = loadData.loadMnist()
 
@@ -141,14 +141,15 @@ def run( ):
     init_scales = init_scales.vect
 
 
+    fraction_error = 0.00
     all_regs, all_tests_loss = [], []
     def train_reg(reg_0, constraint, N_meta_iter, i_top):
         def hyperloss(reg, i_hyper, cur_train_data, cur_valid_data):
             RS = RandomState((seed, i_top, i_hyper, "hyperloss"))
             w_vect_0 = RS.randn(N_weights) * init_scales
             w_vect_final = train_z(loss_fun, cur_train_data, w_vect_0, reg)
+            # fraction_error = frac_err(w_vect_final,**cur_valid_data)
             return loss_fun(w_vect_final, **cur_valid_data)
-        # hypergrad = grad(hyperloss)
         hypergrad = grad(hyperloss)
 
         #reg is the list of hyperparameters
