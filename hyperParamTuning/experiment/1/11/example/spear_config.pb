@@ -1,5 +1,5 @@
 language: PYTHON
-name: "hyperParamServerSubSet.hyperParamServer.serverSpearmint"
+name: "hyperParamServer.serverSpearmint"
 
 variable {
         name: "ml1"
