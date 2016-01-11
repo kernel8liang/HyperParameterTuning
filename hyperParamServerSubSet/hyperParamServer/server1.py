@@ -1,21 +1,18 @@
 """Runs for paper"""
 # feb-5 5
-import numpy as np
+import os
 import pickle
-from collections import defaultdict
-from funkyyak import grad, kylist, getval
 
+import numpy as np
+
+import funkyyak
 import hyperParamServer.loaddataSubClass as loadData
+from funkyyak import grad, getval
 from hyperParamServer.loaddataSubClass import loadSubsetData
 from hypergrad.mnist import random_partition
-from hypergrad.nn_utils import make_nn_funs, VectorParser
+from hypergrad.nn_utils import make_nn_funs
 from hypergrad.optimizers import sgd_meta_only as sgd
-from hypergrad.util import RandomState, dictslice, dictmap
-import os
-import random
-
-
-
+from hypergrad.util import RandomState, dictslice
 
 classNum = 10
 SubclassNum = 10
@@ -23,7 +20,7 @@ layer_sizes = [784,200,SubclassNum]
 N_layers = len(layer_sizes) - 1
 batch_size = 50
 
-N_iters = 1000  #epoch
+N_iters = 300  #epoch
 # 50000 training samples, 10000 validation samples, 10000 testing samples
 # N_train = 10**4 * 5
 # N_valid = 10**4
@@ -45,7 +42,7 @@ beta = 0.8
 seed = 0
 
 #  print the output every N_thin iterations
-N_thin = 999
+N_thin = 50
 N_meta_thin = 1
 log_L2_init = -6.0
 
@@ -101,6 +98,26 @@ def train_z(loss_fun, data, w_vect_0, reg):
         return loss + reg
     return sgd(grad(primal_loss), reg, w_vect_0, alpha, beta, N_iters)
 
+
+def ModifiedGrad(fun,value, argnum=0):
+    def gradfun(*args, **kwargs):
+        tape = funkyyak.CalculationTape(funkyyak.top_tape(args))
+        start_node = funkyyak.Node(args[argnum], tape)
+        args = args[:argnum] + (start_node,) + args[argnum+1:]
+        end_node = fun(*args, **kwargs)
+        if not tape.hasmember(end_node):
+            return start_node.sum_outgrads()
+        if not isinstance(getval(end_node), float):
+            raise TypeError("Can only take gradient of scalar-valued functions")
+        else:
+            end_node.outgrads.append(1.0)
+            for node in tape[::-1]:
+                node.send_upstream()
+            return start_node.sum_outgrads()
+
+    return gradfun, value
+
+
 def run( ):
     RS = RandomState((seed, "to p_rs"))
     data = loadData.loadMnist()
@@ -131,6 +148,7 @@ def run( ):
             w_vect_0 = RS.randn(N_weights) * init_scales
             w_vect_final = train_z(loss_fun, cur_train_data, w_vect_0, reg)
             return loss_fun(w_vect_final, **cur_valid_data)
+        # hypergrad = grad(hyperloss)
         hypergrad = grad(hyperloss)
 
         #reg is the list of hyperparameters

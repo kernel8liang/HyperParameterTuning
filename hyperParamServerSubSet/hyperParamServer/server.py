@@ -1,21 +1,17 @@
 """Runs for paper"""
 # feb-5 5
-import numpy as np
+import os
 import pickle
-from collections import defaultdict
-from funkyyak import grad, kylist, getval
+
+import numpy as np
 
 import hyperParamServer.loaddataSubClass as loadData
+from funkyyak import grad
 from hyperParamServer.loaddataSubClass import loadSubsetData
 from hypergrad.mnist import random_partition
-from hypergrad.nn_utils import make_nn_funs, VectorParser
+from hypergrad.nn_utils import make_nn_funs
 from hypergrad.optimizers import sgd_meta_only as sgd
-from hypergrad.util import RandomState, dictslice, dictmap
-import os
-import random
-
-
-
+from hypergrad.util import RandomState, dictslice
 
 classNum = 10
 SubclassNum = 10

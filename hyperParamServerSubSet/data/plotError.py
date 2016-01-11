@@ -2,12 +2,13 @@ import numpy as np
 import pandas as pd
 import pylab as plt
 import matplotlib.patches as mpatches
+from matplotlib.legend_handler import HandlerLine2D
 
 import os
 
 
 def resultFile(fname):
-    resultFile = os.path.expanduser('/Users/yumengyin/Desktop/hyper_parameter_tuning/hyperParamServerSubSet/data')
+    resultFile = os.path.expanduser('~/Desktop/hyper_parameter_tuning/hyperParamServerSubClass/data')
     return os.path.join(resultFile, fname)
 
 def plotResultFile():
@@ -28,8 +29,8 @@ def plotResultFile():
         i = i+1
     i=0
 
-    plt.ylabel('loss')
-    plt.xlabel('epochs')
+    plt.ylabel('test loss')
+    plt.xlabel('meta iterations')
 
     df_1=df[df.columns[0]]
     df_2=df[df.columns[1]]
@@ -37,8 +38,7 @@ def plotResultFile():
     plt.plot(df_1, label='subsets')
     plt.plot(df_2, label='fullsets')
 
-    plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc=3,
-           ncol=2, mode="expand", borderaxespad=0.)
+    plt.legend(handler_map={plt: HandlerLine2D(numpoints=4)})
     # plt.show()
     # plt.show()
     plt.savefig(output_plot)

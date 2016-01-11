@@ -1,15 +1,15 @@
+import itertools
 import os
-import gzip
-import struct
-import array
-import numpy as np
 import pickle
 
+import numpy as np
+
 from hypergrad.util import dictslice
-import itertools
+
 
 def datapath(fname):
-    datadir = os.path.expanduser('/home/jie/d3/fujie/hyper_parameter_tuning/hypergrad/data/mnist')
+
+    datadir = os.path.expanduser('/Users/yumengyin/Desktop/hyper_parameter_tuning/hypergrad/data/mnist')
     return os.path.join(datadir, fname)
 
 #load data as dictionary
