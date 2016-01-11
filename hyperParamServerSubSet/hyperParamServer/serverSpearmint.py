@@ -6,9 +6,9 @@ import pickle
 import numpy as np
 
 import funkyyak
-import hyperParamServer.loaddataSubClass as loadData
+import loaddataSubClass as loadData
 from funkyyak import grad, getval
-from hyperParamServer.loaddataSubClass import loadSubsetData
+from loaddataSubClass import loadSubsetData
 from hypergrad.mnist import random_partition
 from hypergrad.nn_utils import make_nn_funs
 from hypergrad.optimizers import sgd_meta_only as sgd
@@ -114,11 +114,15 @@ def train_z(loss_fun, data, w_vect_0, reg):
 
 def run(params):
 
-    medianLayer1= params['ml1'][0]
-    medianLayer2= params['ml2'][0]
-    medianLayer3= params['ml3'][0]
-    medianLayer4= params['ml4'][0]
+    medianLayer0= params['ml1'][0]
+    medianLayer1= params['ml2'][0]
+    medianLayer2= params['ml3'][0]
+    medianLayer3= params['ml4'][0]
 
+    # medianLayer0= 0.3
+    # medianLayer1= 1.3
+    # medianLayer2= 2.3
+    # medianLayer3= 3.3
 
 
     RS = RandomState((seed, "to p_rs"))
@@ -195,7 +199,17 @@ def run(params):
     #     loss = new_hyperloss(reg, 0, *cur_split)
     #     print "Results: s= {0}, loss = {1}".format(s, loss)
 
-    reg = np.ones(N_weights) * log_L2_init
+    # reg = np.ones(N_weights) * log_L2_init
+    shape0 = layer_sizes.__getitem__(0)
+    shape1 = layer_sizes.__getitem__(1)
+    shape2 = layer_sizes.__getitem__(2)
+    shape3 = layer_sizes.__getitem__(3)
+
+    l1= np.ones(shape0*shape1)* medianLayer0
+    l2= np.ones(shape1*shape2+shape1)* medianLayer1
+    l3= np.ones(shape2*shape3+shape2)* medianLayer2
+    l4= np.ones(shape3)* medianLayer3
+    reg = np.concatenate([l1,l2,l3,l4])
 
     constraints = ['universal', 'layers', 'units']
     for i_top, (N_meta_iter, constraint) in enumerate(zip(all_N_meta_iter, constraints)):
