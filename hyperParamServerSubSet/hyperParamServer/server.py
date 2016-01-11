@@ -1,12 +1,13 @@
-"""Runs for paper"""
+"""use the parallel subset hyperparameter tuning method"""
 # feb-5 5
 import os
 import pickle
 
 import numpy as np
 
+import funkyyak
 import hyperParamServer.loaddataSubClass as loadData
-from funkyyak import grad
+from funkyyak import grad, getval
 from hyperParamServer.loaddataSubClass import loadSubsetData
 from hypergrad.mnist import random_partition
 from hypergrad.nn_utils import make_nn_funs
@@ -15,11 +16,11 @@ from hypergrad.util import RandomState, dictslice
 
 classNum = 10
 SubclassNum = 10
-layer_sizes = [784,200,SubclassNum]
+layer_sizes = [784,200,200,SubclassNum]
 N_layers = len(layer_sizes) - 1
 batch_size = 50
 
-N_iters = 1000  #epoch
+N_iters = 3000  #epoch
 # 50000 training samples, 10000 validation samples, 10000 testing samples
 # N_train = 10**4 * 5
 # N_valid = 10**4
@@ -34,16 +35,16 @@ all_N_meta_iter = [50, 0, 0]
 clientNum = 3
 
 
-
-alpha = 1.0
-meta_alpha = 10**4
+# 0.05
+alpha = 0.005
+meta_alpha = 0.2
 beta = 0.8
 seed = 0
 
 #  print the output every N_thin iterations
-N_thin = 999
+N_thin = 50
 N_meta_thin = 1
-log_L2_init = -6.0
+log_L2_init = -3.0
 
 
 def classIndexPath(fname):
@@ -92,8 +93,8 @@ def train_z(loss_fun, data, w_vect_0, reg):
         minibatch = dictslice(data, idxs)
         loss = loss_fun(w_vect, **minibatch)
         reg = regularization(w_vect, reg)
-        # if record_results and i_primal % N_thin == 0:
-        #     print "Iter {0}: train: {1}".format(i_primal, getval(loss))
+        if record_results and i_primal % N_thin == 0:
+            print "Iter {0}: train: {1}".format(i_primal, getval(loss))
         return loss + reg
     return sgd(grad(primal_loss), reg, w_vect_0, alpha, beta, N_iters)
 
@@ -120,12 +121,14 @@ def run( ):
     init_scales = init_scales.vect
 
 
+    fraction_error = 0.00
     all_regs, all_tests_loss = [], []
     def train_reg(reg_0, constraint, N_meta_iter, i_top):
         def hyperloss(reg, i_hyper, cur_train_data, cur_valid_data):
             RS = RandomState((seed, i_top, i_hyper, "hyperloss"))
             w_vect_0 = RS.randn(N_weights) * init_scales
             w_vect_final = train_z(loss_fun, cur_train_data, w_vect_0, reg)
+            # fraction_error = frac_err(w_vect_final,**cur_valid_data)
             return loss_fun(w_vect_final, **cur_valid_data)
         hypergrad = grad(hyperloss)
 
@@ -151,8 +154,9 @@ def run( ):
 
                 # cur_reg -= constrained_grad / np.abs(constrained_grad + 1e-8) * meta_alpha
                 cur_reg -= constrained_grad * meta_alpha/clientNum
-            # print "constrained_grad",constrained_grad
+
             print "\n"
+            # print "constrained_grad",constrained_grad
         return cur_reg
 
 

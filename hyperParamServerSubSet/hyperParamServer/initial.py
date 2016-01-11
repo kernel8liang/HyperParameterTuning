@@ -13,11 +13,11 @@ from hypergrad.util import RandomState, dictslice
 
 classNum = 10
 SubclassNum = 10
-layer_sizes = [784,200,SubclassNum]
+layer_sizes = [784,200,200,SubclassNum]
 N_layers = len(layer_sizes) - 1
 batch_size = 50
 
-N_iters = 1000  #epoch
+N_iters = 3000  #epoch
 # 50000 training samples, 10000 validation samples, 10000 testing samples
 # N_train = 10**4 * 5
 # N_valid = 10**4
@@ -33,15 +33,16 @@ clientNum = 3
 
 
 
-alpha = 1.0
-meta_alpha = 10**4
+alpha = 0.005
+meta_alpha = 0.2
 beta = 0.8
 seed = 0
 
 #  print the output every N_thin iterations
-N_thin = 999
+N_thin = 50
 N_meta_thin = 1
-log_L2_init = -6.0
+log_L2_init = -3.0
+
 
 
 
