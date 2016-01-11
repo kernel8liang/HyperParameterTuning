@@ -28,6 +28,9 @@ sys.path.append(os.path.realpath(__file__))
 project_dir = os.environ['EXPERI_PROJECT_PATH']
 sys.path.append(project_dir)
 sys.path.append(project_dir+"/hyperParamServerSubSet")
+sys.path.append(project_dir+"/library")
+sys.path.append(project_dir+"/library/autograd")
+sys.path.append(project_dir+"/library/hypergrad")
 sys.path.append(project_dir+"/library/spearmint")
 sys.path.append(project_dir+"/library/spearmint/spearmint")
 
