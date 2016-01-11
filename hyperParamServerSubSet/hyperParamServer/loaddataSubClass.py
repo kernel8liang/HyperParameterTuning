@@ -9,7 +9,9 @@ from hypergrad.util import dictslice
 
 def datapath(fname):
 
-    datadir = os.path.expanduser('/Users/yumengyin/Desktop/hyper_parameter_tuning/hypergrad/data/mnist')
+    project_dir = os.environ['EXPERI_PROJECT_PATH']
+    datadir = project_dir+"/library/hypergrad/data/mnist"
+    # datadir = os.path.expanduser('/Users/yumengyin/Desktop/hyper_parameter_tuning/library/hypergrad/data/mnist')
     return os.path.join(datadir, fname)
 
 #load data as dictionary

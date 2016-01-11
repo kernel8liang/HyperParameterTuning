@@ -1,68 +1,58 @@
 """use the parallel subset hyperparameter tuning method"""
 # feb-5 5
-import os
-import pickle
-
 import numpy as np
+import pickle
+from collections import defaultdict
+from funkyyak import grad, kylist, getval
 
-import funkyyak
 import hyperParamServer.loaddataSubClass as loadData
-from funkyyak import grad, getval
 from hyperParamServer.loaddataSubClass import loadSubsetData
 from hypergrad.mnist import random_partition
-from hypergrad.nn_utils import make_nn_funs
+from hypergrad.nn_utils import make_nn_funs, VectorParser
 from hypergrad.optimizers import sgd_meta_only as sgd
-from hypergrad.util import RandomState, dictslice
+from hypergrad.util import RandomState, dictslice, dictmap
+import os
+import random
 
-
-def main(job_id, params):
-    print('spear_wrapper job #:%s' % str(job_id))
-    print("spear_wrapper in directory: %s" % os.getcwd())
-    print("spear_wrapper params are:%s" % params)
-
-
-    # return run_cifar10(params)
-    return run(params)
 
 
 
 classNum = 10
-SubclassNum = 10
-layer_sizes = [784,200,200,SubclassNum]
+SubclassNum = 4
+layer_sizes = [784,50,50,SubclassNum]
 N_layers = len(layer_sizes) - 1
 batch_size = 50
 
-N_iters = 3000  #epoch
+N_iters = 100  #epoch
 # 50000 training samples, 10000 validation samples, 10000 testing samples
 # N_train = 10**4 * 5
 # N_valid = 10**4
 # N_tests = 10**4
 
-N_train = 10**4*2
-N_valid = 10**3*5
-N_tests = 10**4
+N_train = 10**2 * 2
+N_valid = 10**2
+N_tests = 10**3
 
-all_N_meta_iter = [50, 0, 0]
+all_N_meta_iter = [10, 0, 0]
 
 clientNum = 3
 
 
-# 0.05
-alpha = 0.005
-meta_alpha = 0.2
+
+alpha = 1.0
+meta_alpha = 10**4
 beta = 0.8
 seed = 0
 
 #  print the output every N_thin iterations
 N_thin = 50
 N_meta_thin = 1
-log_L2_init = -3.0
+log_L2_init = -6.0
 
 
 def classIndexPath(fname):
     project_dir = os.environ['EXPERI_PROJECT_PATH']
     classIndexPath = project_dir+"/hyperParamServerSubClass/data"
-    # classIndexPath = os.path.expanduser('~/Desktop/hyper_parameter_tuning/hyperParamServerSubClass/data')
     return os.path.join(classIndexPath, fname)
 
 
@@ -112,24 +102,17 @@ def train_z(loss_fun, data, w_vect_0, reg):
         return loss + reg
     return sgd(grad(primal_loss), reg, w_vect_0, alpha, beta, N_iters)
 
-def run(params):
-
-    medianLayer1= params['ml1'][0]
-    medianLayer2= params['ml2'][0]
-    medianLayer3= params['ml3'][0]
-    medianLayer4= params['ml4'][0]
-
-
-
+def run( subClassIndexList):
     RS = RandomState((seed, "to p_rs"))
     data = loadData.loadMnist()
 
+
+    train_data,test_data = loadData.load_data_as_dict(data, classNum, subClassIndexList.__getitem__(0))
+
     train_data_subclass = []
-
-    train_data, tests_data = loadData.load_data_as_dict(data, classNum)
-
-
     train_data_subclass= loadSubsetData(train_data,RS, N_train, clientNum)
+
+
 
     print "training samples {0}: testing samples: {1}".format(N_train,N_tests)
 
@@ -143,14 +126,12 @@ def run(params):
     init_scales = init_scales.vect
 
 
-    fraction_error = 0.00
     all_regs, all_tests_loss = [], []
     def train_reg(reg_0, constraint, N_meta_iter, i_top):
         def hyperloss(reg, i_hyper, cur_train_data, cur_valid_data):
             RS = RandomState((seed, i_top, i_hyper, "hyperloss"))
             w_vect_0 = RS.randn(N_weights) * init_scales
             w_vect_final = train_z(loss_fun, cur_train_data, w_vect_0, reg)
-            # fraction_error = frac_err(w_vect_final,**cur_valid_data)
             return loss_fun(w_vect_final, **cur_valid_data)
         hypergrad = grad(hyperloss)
 
@@ -178,7 +159,8 @@ def run(params):
                 cur_reg -= constrained_grad * meta_alpha/clientNum
 
             print "\n"
-            # print "constrained_grad",constrained_grad
+
+
         return cur_reg
 
 
@@ -240,9 +222,31 @@ def plot():
     plt.savefig('bottom_layer_filter.png')
 
 
+def generateClassIndexList(classNum, SubclassNum, clientNum):
+
+    classIndexFile = classIndexPath("classIndexList")
+    classIndexList = []
+    # if not os.path.exists(classIndexFile):
+    with open(classIndexFile, 'w') as fout:
+        nums = [x for x in range(10)]
+        random.shuffle(nums)
+        num1 = nums[2:4]
+        for i in range (0,clientNum):
+            startNum = (i*SubclassNum)%classNum
+            if (startNum+SubclassNum) > classNum:
+                classIndex = nums[startNum: classNum]+nums[ 0:classNum-startNum]
+            else:
+                classIndex = nums[startNum:(startNum + SubclassNum)]
+            classIndexList.append(classIndex)
+        fout.write("\t".join(np.array(map(str, classIndexList))))
+
+
+    return classIndexList
+
 
 if __name__ == '__main__':
-    results = run( )
+    subClassIndexList = generateClassIndexList(classNum, SubclassNum, 1)
+    results = run( subClassIndexList)
     # with open('results.pkl', 'w') as f:
     #     pickle.dump(results, f, 1)
     # plot()

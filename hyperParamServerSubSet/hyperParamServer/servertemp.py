@@ -14,25 +14,13 @@ from hypergrad.nn_utils import make_nn_funs
 from hypergrad.optimizers import sgd_meta_only as sgd
 from hypergrad.util import RandomState, dictslice
 
-
-def main(job_id, params):
-    print('spear_wrapper job #:%s' % str(job_id))
-    print("spear_wrapper in directory: %s" % os.getcwd())
-    print("spear_wrapper params are:%s" % params)
-
-
-    # return run_cifar10(params)
-    return run(params)
-
-
-
 classNum = 10
 SubclassNum = 10
 layer_sizes = [784,200,200,SubclassNum]
 N_layers = len(layer_sizes) - 1
 batch_size = 50
 
-N_iters = 3000  #epoch
+N_iters = 200  #epoch
 # 50000 training samples, 10000 validation samples, 10000 testing samples
 # N_train = 10**4 * 5
 # N_valid = 10**4
@@ -60,9 +48,7 @@ log_L2_init = -3.0
 
 
 def classIndexPath(fname):
-    project_dir = os.environ['EXPERI_PROJECT_PATH']
-    classIndexPath = project_dir+"/hyperParamServerSubClass/data"
-    # classIndexPath = os.path.expanduser('~/Desktop/hyper_parameter_tuning/hyperParamServerSubClass/data')
+    classIndexPath = os.path.expanduser('~/Desktop/hyper_parameter_tuning/hyperParamServerSubClass/data')
     return os.path.join(classIndexPath, fname)
 
 
@@ -112,15 +98,7 @@ def train_z(loss_fun, data, w_vect_0, reg):
         return loss + reg
     return sgd(grad(primal_loss), reg, w_vect_0, alpha, beta, N_iters)
 
-def run(params):
-
-    medianLayer1= params['ml1'][0]
-    medianLayer2= params['ml2'][0]
-    medianLayer3= params['ml3'][0]
-    medianLayer4= params['ml4'][0]
-
-
-
+def run( ):
     RS = RandomState((seed, "to p_rs"))
     data = loadData.loadMnist()
 
@@ -150,7 +128,7 @@ def run(params):
             RS = RandomState((seed, i_top, i_hyper, "hyperloss"))
             w_vect_0 = RS.randn(N_weights) * init_scales
             w_vect_final = train_z(loss_fun, cur_train_data, w_vect_0, reg)
-            # fraction_error = frac_err(w_vect_final,**cur_valid_data)
+            fraction_error = frac_err(w_vect_final,**cur_valid_data)
             return loss_fun(w_vect_final, **cur_valid_data)
         hypergrad = grad(hyperloss)
 
@@ -161,7 +139,7 @@ def run(params):
                 tests_loss = hyperloss(cur_reg, i_hyper, train_data, tests_data)
                 all_tests_loss.append(tests_loss)
                 all_regs.append(cur_reg.copy())
-                print "Hyper iter {0}, test loss {1}".format(i_hyper, all_tests_loss[-1])
+                print "Hyper iter {0}, test loss {1}, fraction error {2}".format(i_hyper, all_tests_loss[-1], fraction_error)
                 # print "Cur_reg", np.mean(cur_reg)
                 print "Cur_reg", cur_reg
 

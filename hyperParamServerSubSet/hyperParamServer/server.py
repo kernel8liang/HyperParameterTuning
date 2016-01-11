@@ -48,7 +48,8 @@ log_L2_init = -3.0
 
 
 def classIndexPath(fname):
-    classIndexPath = os.path.expanduser('~/Desktop/hyper_parameter_tuning/hyperParamServerSubClass/data')
+    project_dir = os.environ['EXPERI_PROJECT_PATH']
+    classIndexPath = project_dir+"/hyperParamServerSubClass/data"
     return os.path.join(classIndexPath, fname)
 
 
