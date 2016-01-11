@@ -241,8 +241,26 @@ def plot():
 
 
 
+from spearmint import spearmint_pb2
 if __name__ == '__main__':
-    results = run( )
+    params = []
+    param = spearmint_pb2.Parameter()
+    param.name = "ml1"
+    param.dbl_val.append (float(3.00))
+    params.append(param)
+    param = spearmint_pb2.Parameter()
+    param.name = "ml2"
+    param.dbl_val.append (float(3.00))
+    params.append(param)
+    param = spearmint_pb2.Parameter()
+    param.name = "ml3"
+    param.dbl_val.append (float(3.00))
+    params.append(param)
+    param = spearmint_pb2.Parameter()
+    param.name = "ml4"
+    param.dbl_val.append (float(3.00))
+    params.append(param)
+    results = run( params)
     # with open('results.pkl', 'w') as f:
     #     pickle.dump(results, f, 1)
     # plot()
