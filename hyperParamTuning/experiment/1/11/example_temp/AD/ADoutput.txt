@@ -1,0 +1,10 @@
+training samples 20000: testing samples: 10000
+Top level iter 0
+Top level iter 1
+Top level iter 2
+Iter 0: train: 2.82473188711
+Iter 50: train: 2.75938217944
+Iter 100: train: 2.74061661619
+Iter 150: train: 2.68677060215
+Iter 200: train: 2.71350299745
+Iter 250: train: 2.62083237105

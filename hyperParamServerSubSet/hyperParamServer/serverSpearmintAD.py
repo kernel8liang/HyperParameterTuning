@@ -14,6 +14,8 @@ from hypergrad.nn_utils import make_nn_funs
 from hypergrad.optimizers import sgd_meta_only as sgd
 from hypergrad.util import RandomState, dictslice
 
+import sys
+
 
 
 classNum = 10
@@ -22,15 +24,15 @@ layer_sizes = [784,200,200,SubclassNum]
 N_layers = len(layer_sizes) - 1
 batch_size = 50
 
-N_iters = 400  #epoch
+N_iters = 3000  #epoch
 # 50000 training samples, 10000 validation samples, 10000 testing samples
 # N_train = 10**4 * 5
 # N_valid = 10**4
 # N_tests = 10**4
 
-N_train = 10**3*2
-N_valid = 10**2*5
-N_tests = 10**3
+N_train = 10**4*2
+N_valid = 10**3*5
+N_tests = 10**4
 
 all_N_meta_iter = [0, 0, 10]
 
@@ -51,21 +53,25 @@ log_L2_init = -3.0
 
 
 
-def main(job_id, params):
-    print('spear_wrapper job #:%s' % str(job_id))
-    print("spear_wrapper in directory: %s" % os.getcwd())
-    print("spear_wrapper params are:%s" % params)
 
+class Logger(object):
+    def __init__(self, filename="Default.log"):
+        self.terminal = sys.stdout
+        self.log = open(filename, "a")
 
-    # return run_cifar10(params)
-    return run(params)
-    # return 0.3
+    def write(self, message):
+        self.terminal.write(message)
+        self.log.write(message)
+
+def genoutput(path):
+    sys.stdout = Logger(path+"/ADoutput.txt")
+
 
 
 
 def classIndexPath(fname):
     project_dir = os.environ['EXPERI_PROJECT_PATH']
-    classIndexPath = project_dir+"/hyperParamServerSubClass/data"
+    classIndexPath = project_dir+"/hyperParamServerSubSet/data"
     # classIndexPath = os.path.expanduser('~/Desktop/hyper_parameter_tuning/hyperParamServerSubClass/data')
     return os.path.join(classIndexPath, fname)
 
@@ -105,17 +111,26 @@ def train_z(loss_fun, data, w_vect_0, reg):
         return loss + reg
     return sgd(grad(primal_loss), reg, w_vect_0, alpha, beta, N_iters)
 
-def run(params):
+def run(params,project_dir):
     #
     # medianLayer0= params['ml1'][0]
     # medianLayer1= params['ml2'][0]
     # medianLayer2= params['ml3'][0]
     # medianLayer3= params['ml4'][0]
 
-    medianLayer0= 0.3
-    medianLayer1= 1.3
-    medianLayer2= 2.3
-    medianLayer3= 3.3
+    genoutput(project_dir+"AD")
+
+
+    medianLayer0= params[0]
+    medianLayer1= params[1]
+    medianLayer2= params[2]
+    medianLayer3= params[3]
+
+
+    # medianLayer0= 0.3
+    # medianLayer1= 1.3
+    # medianLayer2= 2.3
+    # medianLayer3= 3.3
 
 
     RS = RandomState((seed, "to p_rs"))
@@ -261,24 +276,39 @@ def plot():
 
 from spearmint import spearmint_pb2
 if __name__ == '__main__':
+    # params = []
+    # param = spearmint_pb2.Parameter()
+    # param.name = "ml1"
+    # param.dbl_val.append (float(3.00))
+    # params.append(param)
+    # param = spearmint_pb2.Parameter()
+    # param.name = "ml2"
+    # param.dbl_val.append (float(3.00))
+    # params.append(param)
+    # param = spearmint_pb2.Parameter()
+    # param.name = "ml3"
+    # param.dbl_val.append (float(3.00))
+    # params.append(param)
+    # param = spearmint_pb2.Parameter()
+    # param.name = "ml4"
+    # param.dbl_val.append (float(3.00))
+    # params.append(param)
+
+    project_dir = os.environ['EXPERI_PROJECT_PATH']+"/hyperParamTuning/experiment/1/11/example/"
+    filedir = project_dir+"best_job_and_result.txt"
+
+
+
+
+    count = 0
     params = []
-    param = spearmint_pb2.Parameter()
-    param.name = "ml1"
-    param.dbl_val.append (float(3.00))
-    params.append(param)
-    param = spearmint_pb2.Parameter()
-    param.name = "ml2"
-    param.dbl_val.append (float(3.00))
-    params.append(param)
-    param = spearmint_pb2.Parameter()
-    param.name = "ml3"
-    param.dbl_val.append (float(3.00))
-    params.append(param)
-    param = spearmint_pb2.Parameter()
-    param.name = "ml4"
-    param.dbl_val.append (float(3.00))
-    params.append(param)
-    results = run( params)
+    with open(filedir, 'r') as fin:
+        for line in fin:
+            if 'dbl_val' in line:
+                params.append(float(line.split(": ")[1]))
+
+
+    results = run( params,project_dir)
     print results
     # with open('results.pkl', 'w') as f:
     #     pickle.dump(results, f, 1)
