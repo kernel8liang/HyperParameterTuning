@@ -15,16 +15,6 @@ from hypergrad.optimizers import sgd_meta_only as sgd
 from hypergrad.util import RandomState, dictslice
 
 
-def main(job_id, params):
-    print('spear_wrapper job #:%s' % str(job_id))
-    print("spear_wrapper in directory: %s" % os.getcwd())
-    print("spear_wrapper params are:%s" % params)
-
-
-    # return run_cifar10(params)
-    return run(params)
-
-
 
 classNum = 10
 SubclassNum = 10
@@ -32,17 +22,17 @@ layer_sizes = [784,200,200,SubclassNum]
 N_layers = len(layer_sizes) - 1
 batch_size = 50
 
-N_iters = 3000  #epoch
+N_iters = 200  #epoch
 # 50000 training samples, 10000 validation samples, 10000 testing samples
 # N_train = 10**4 * 5
 # N_valid = 10**4
 # N_tests = 10**4
 
-N_train = 10**4*2
-N_valid = 10**3*5
-N_tests = 10**4
+N_train = 10**3*2
+N_valid = 10**2*5
+N_tests = 10**3
 
-all_N_meta_iter = [50, 0, 0]
+all_N_meta_iter = [5, 0, 0]
 
 clientNum = 3
 
@@ -57,6 +47,20 @@ seed = 0
 N_thin = 50
 N_meta_thin = 1
 log_L2_init = -3.0
+
+
+
+
+def main(job_id, params):
+    print('spear_wrapper job #:%s' % str(job_id))
+    print("spear_wrapper in directory: %s" % os.getcwd())
+    print("spear_wrapper params are:%s" % params)
+
+
+    # return run_cifar10(params)
+    return run(params)
+
+
 
 
 def classIndexPath(fname):
@@ -217,7 +221,8 @@ def run(params):
         reg = train_reg(reg, constraint, N_meta_iter, i_top)
 
     all_L2_regs = np.array(zip(*map(w_parser, process_reg, all_regs)))
-    return all_L2_regs, all_tests_loss
+    # return all_L2_regs, all_tests_loss
+    return all_tests_loss.__getitem__(all_tests_loss.__len__()-1)
 
 def plot():
     import matplotlib.pyplot as plt
