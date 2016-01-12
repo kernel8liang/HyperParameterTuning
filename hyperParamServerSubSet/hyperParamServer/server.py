@@ -74,16 +74,7 @@ def constrain_reg(w_parser,t_vect, name):
         raise Exception
     return all_r.vect
 
-def process_reg(w_parser, t_vect):
-    # Remove the redundancy due to sharing regularization within units
-    all_r = w_parser.new_vect(t_vect)
-    new_r = np.zeros((0,))
-    for i in range(N_layers):
-        layer = all_r[('weights', i)]
-        assert np.all(layer[:, 0] == layer[:, 1])
-        cur_r = layer[:, 0]
-        new_r = np.concatenate((new_r, cur_r))
-    return new_r
+
 
 
 def train_z(loss_fun, data, w_vect_0, reg):
@@ -121,6 +112,17 @@ def run( ):
         init_scales[('biases',  i)] = 1.0
     init_scales = init_scales.vect
 
+
+    def process_reg(t_vect):
+        # Remove the redundancy due to sharing regularization within units
+        all_r = w_parser.new_vect(t_vect)
+        new_r = np.zeros((0,))
+        for i in range(N_layers):
+            layer = all_r[('weights', i)]
+            assert np.all(layer[:, 0] == layer[:, 1])
+            cur_r = layer[:, 0]
+            new_r = np.concatenate((new_r, cur_r))
+        return new_r
 
     fraction_error = 0.00
     all_regs, all_tests_loss = [], []
@@ -181,7 +183,7 @@ def run( ):
         print "Top level iter {0}".format(i_top)
         reg = train_reg(reg, constraint, N_meta_iter, i_top)
 
-    all_L2_regs = np.array(zip(*map(w_parser, process_reg, all_regs)))
+    all_L2_regs = np.array(zip(*map( process_reg, all_regs)))
     return all_L2_regs, all_tests_loss
 
 def plot():

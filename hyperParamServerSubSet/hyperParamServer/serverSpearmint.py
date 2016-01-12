@@ -22,7 +22,7 @@ layer_sizes = [784,200,200,SubclassNum]
 N_layers = len(layer_sizes) - 1
 batch_size = 50
 
-N_iters = 200  #epoch
+N_iters = 400  #epoch
 # 50000 training samples, 10000 validation samples, 10000 testing samples
 # N_train = 10**4 * 5
 # N_valid = 10**4
@@ -32,7 +32,7 @@ N_train = 10**3*2
 N_valid = 10**2*5
 N_tests = 10**3
 
-all_N_meta_iter = [5, 0, 0]
+all_N_meta_iter = [0, 0, 10]
 
 clientNum = 3
 
@@ -59,7 +59,7 @@ def main(job_id, params):
 
     # return run_cifar10(params)
     return run(params)
-
+    # return 0.3
 
 
 
@@ -91,17 +91,6 @@ def constrain_reg(w_parser,t_vect, name):
         raise Exception
     return all_r.vect
 
-def process_reg(w_parser, t_vect):
-    # Remove the redundancy due to sharing regularization within units
-    all_r = w_parser.new_vect(t_vect)
-    new_r = np.zeros((0,))
-    for i in range(N_layers):
-        layer = all_r[('weights', i)]
-        assert np.all(layer[:, 0] == layer[:, 1])
-        cur_r = layer[:, 0]
-        new_r = np.concatenate((new_r, cur_r))
-    return new_r
-
 
 def train_z(loss_fun, data, w_vect_0, reg):
     N_data = data['X'].shape[0]
@@ -117,16 +106,16 @@ def train_z(loss_fun, data, w_vect_0, reg):
     return sgd(grad(primal_loss), reg, w_vect_0, alpha, beta, N_iters)
 
 def run(params):
+    #
+    # medianLayer0= params['ml1'][0]
+    # medianLayer1= params['ml2'][0]
+    # medianLayer2= params['ml3'][0]
+    # medianLayer3= params['ml4'][0]
 
-    medianLayer0= params['ml1'][0]
-    medianLayer1= params['ml2'][0]
-    medianLayer2= params['ml3'][0]
-    medianLayer3= params['ml4'][0]
-
-    # medianLayer0= 0.3
-    # medianLayer1= 1.3
-    # medianLayer2= 2.3
-    # medianLayer3= 3.3
+    medianLayer0= 0.3
+    medianLayer1= 1.3
+    medianLayer2= 2.3
+    medianLayer3= 3.3
 
 
     RS = RandomState((seed, "to p_rs"))
@@ -150,6 +139,16 @@ def run(params):
         init_scales[('biases',  i)] = 1.0
     init_scales = init_scales.vect
 
+    def process_reg(t_vect):
+        # Remove the redundancy due to sharing regularization within units
+        all_r = w_parser.new_vect(t_vect)
+        new_r = np.zeros((0,))
+        for i in range(N_layers):
+            layer = all_r[('weights', i)]
+            assert np.all(layer[:, 0] == layer[:, 1])
+            cur_r = layer[:, 0]
+            new_r = np.concatenate((new_r, cur_r))
+        return new_r
 
     fraction_error = 0.00
     all_regs, all_tests_loss = [], []
@@ -220,7 +219,7 @@ def run(params):
         print "Top level iter {0}".format(i_top)
         reg = train_reg(reg, constraint, N_meta_iter, i_top)
 
-    all_L2_regs = np.array(zip(*map(w_parser, process_reg, all_regs)))
+    all_L2_regs = np.array(zip(*map(process_reg, all_regs)))
     # return all_L2_regs, all_tests_loss
     return all_tests_loss.__getitem__(all_tests_loss.__len__()-1)
 
@@ -280,6 +279,7 @@ if __name__ == '__main__':
     param.dbl_val.append (float(3.00))
     params.append(param)
     results = run( params)
+    print results
     # with open('results.pkl', 'w') as f:
     #     pickle.dump(results, f, 1)
     # plot()
