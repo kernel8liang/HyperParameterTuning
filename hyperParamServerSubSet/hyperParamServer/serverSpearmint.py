@@ -32,7 +32,7 @@ N_train = 10**3*2
 N_valid = 10**2*5
 N_tests = 10**3
 
-all_N_meta_iter = [0, 0, 1]
+all_N_meta_iter = [0, 0, 10]
 
 clientNum = 3
 

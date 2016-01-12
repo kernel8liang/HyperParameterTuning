@@ -41,7 +41,7 @@ clientNum = 3
 
 # 0.05
 alpha = 0.005
-meta_alpha = 2
+meta_alpha = 1
 beta = 0.8
 seed = 0
 
