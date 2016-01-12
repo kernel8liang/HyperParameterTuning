@@ -10,6 +10,7 @@ from hypergrad.mnist import random_partition
 from hypergrad.nn_utils import make_nn_funs
 from hypergrad.optimizers import sgd_meta_only as sgd
 from hypergrad.util import RandomState, dictslice
+import sys
 
 classNum = 10
 SubclassNum = 10
@@ -34,7 +35,7 @@ clientNum = 3
 
 
 alpha = 0.005
-meta_alpha = 0.2
+meta_alpha = 1
 beta = 0.8
 seed = 0
 
@@ -42,6 +43,20 @@ seed = 0
 N_thin = 50
 N_meta_thin = 1
 log_L2_init = -3.0
+
+
+class Logger(object):
+    def __init__(self, filename="Default.log"):
+        self.terminal = sys.stdout
+        self.log = open(filename, "a")
+
+    def write(self, message):
+        self.terminal.write(message)
+        self.log.write(message)
+
+def genoutput(path):
+    sys.stdout = Logger(path+"/outputInitial.txt")
+
 
 
 
@@ -199,9 +214,16 @@ def plot():
     ax.set_yticks([])
     plt.savefig('bottom_layer_filter.png')
 
+def experiment():
+    project_dir = os.environ['EXPERI_PROJECT_PATH']
+    filedir = project_dir+"/hyperParamServerSubSet/experiment/1/12"
+    genoutput(filedir)
+    run( )
+
 if __name__ == '__main__':
-    results = run( )
-    result = results
+    experiment()
+    # results = run( )
+    # result = results
     # with open('results.pkl', 'w') as f:
     #     pickle.dump(results, f, 1)
     # plot()

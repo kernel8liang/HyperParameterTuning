@@ -32,14 +32,14 @@ N_train = 10**3*2
 N_valid = 10**2*5
 N_tests = 10**3
 
-all_N_meta_iter = [0, 0, 10]
+all_N_meta_iter = [0, 0, 1]
 
 clientNum = 3
 
 
 # 0.05
 alpha = 0.005
-meta_alpha = 2
+meta_alpha = 1
 beta = 0.8
 seed = 0
 
@@ -106,16 +106,16 @@ def train_z(loss_fun, data, w_vect_0, reg):
     return sgd(grad(primal_loss), reg, w_vect_0, alpha, beta, N_iters)
 
 def run(params):
-    #
-    # medianLayer0= params['ml1'][0]
-    # medianLayer1= params['ml2'][0]
-    # medianLayer2= params['ml3'][0]
-    # medianLayer3= params['ml4'][0]
 
-    medianLayer0= 0.3
-    medianLayer1= 1.3
-    medianLayer2= 2.3
-    medianLayer3= 3.3
+    medianLayer0= params['ml1'][0]
+    medianLayer1= params['ml2'][0]
+    medianLayer2= params['ml3'][0]
+    medianLayer3= params['ml4'][0]
+
+    # medianLayer0= 0.3
+    # medianLayer1= 1.3
+    # medianLayer2= 2.3
+    # medianLayer3= 3.3
 
 
     RS = RandomState((seed, "to p_rs"))
