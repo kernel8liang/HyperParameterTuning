@@ -118,7 +118,7 @@ def run(params,project_dir):
     # medianLayer2= params['ml3'][0]
     # medianLayer3= params['ml4'][0]
 
-    genoutput(project_dir+"AD")
+    genoutput(project_dir)
 
 
     medianLayer0= params[0]
