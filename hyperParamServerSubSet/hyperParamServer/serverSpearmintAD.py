@@ -5,7 +5,6 @@ import pickle
 
 import numpy as np
 
-import funkyyak
 import loaddataSubClass as loadData
 from funkyyak import grad, getval
 from loaddataSubClass import loadSubsetData
@@ -36,19 +35,19 @@ N_tests = 10**4
 
 all_N_meta_iter = [0, 0, 10]
 
-clientNum = 3
+clientNum = 5
 
 
 # 0.05
-alpha = 0.005
-meta_alpha = 1
+alpha = 0.05
+meta_alpha = 0.1
 beta = 0.8
 seed = 0
 
 #  print the output every N_thin iterations
 N_thin = 50
 N_meta_thin = 1
-log_L2_init = -3.0
+log_L2_init = -6.0
 
 
 
@@ -198,7 +197,7 @@ def run(params,project_dir):
 
                 # cur_reg -= constrained_grad / np.abs(constrained_grad + 1e-8) * meta_alpha
                 cur_reg -= constrained_grad * meta_alpha/clientNum
-
+                # cur_reg -= np.sign(constrained_grad) * meta_alpha/clientNum
             print "\n"
             # print "constrained_grad",constrained_grad
         return cur_reg
@@ -294,7 +293,7 @@ if __name__ == '__main__':
     # param.dbl_val.append (float(3.00))
     # params.append(param)
 
-    project_dir = os.environ['EXPERI_PROJECT_PATH']+"/hyperParamTuning/experiment/1/11/example/"
+    project_dir = os.environ['EXPERI_PROJECT_PATH']+"/hyperParamTuning/experiment/1/12/example/"
     filedir = project_dir+"best_job_and_result.txt"
 
 

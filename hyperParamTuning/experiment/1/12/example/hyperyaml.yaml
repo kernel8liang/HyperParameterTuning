@@ -1,0 +1,4 @@
+medianLayer1: !hyperopt ml1 FLOAT -8 0
+medianLayer2: !hyperopt ml2 FLOAT -8 0
+medianLayer3: !hyperopt ml3 FLOAT -8 0
+medianLayer4: !hyperopt ml4 FLOAT -8 0

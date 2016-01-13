@@ -1,0 +1,31 @@
+use the initial one and
+
+classNum = 10
+SubclassNum = 10
+layer_sizes = [784,200,200,SubclassNum]
+N_layers = len(layer_sizes) - 1
+batch_size = 50
+
+N_iters = 1000  #epoch
+# 50000 training samples, 10000 validation samples, 10000 testing samples
+# N_train = 10**4 * 5
+# N_valid = 10**4
+# N_tests = 10**4
+
+N_train = 10**4*2
+N_valid = 10**3*5
+N_tests = 10**4
+
+all_N_meta_iter = [0, 0, 50]#epoch
+
+alpha = 0.05
+meta_alpha = 10**4
+beta = 0.8
+seed = 0
+
+#  print the output every N_thin iterations
+N_thin = 50
+N_meta_thin = 1
+log_L2_init = -6.0
+
+cur_reg -= constrained_grad * meta_alpha

@@ -1,28 +1,30 @@
 """use the parallel subset hyperparameter tuning method"""
 # feb-5 5
-import numpy as np
-import pickle
-from collections import defaultdict
-from funkyyak import grad, kylist, getval
-
-import hyperParamServer.loaddataSubClass as loadData
-from hyperParamServer.loaddataSubClass import loadSubsetData
-from hypergrad.mnist import random_partition
-from hypergrad.nn_utils import make_nn_funs, VectorParser
-from hypergrad.optimizers import sgd_meta_only as sgd
-from hypergrad.util import RandomState, dictslice, dictmap
 import os
-import random
+import pickle
+
+import numpy as np
+
+import funkyyak
+import loaddataSubClass as loadData
+from funkyyak import grad, getval
+from loaddataSubClass import loadSubsetData
+from hypergrad.mnist import random_partition
+from hypergrad.nn_utils import make_nn_funs
+from hypergrad.optimizers import sgd_meta_only as sgd
+from hypergrad.util import RandomState, dictslice
+
+import sys
 
 
 
 classNum = 10
 SubclassNum = 10
-layer_sizes = [784,200,SubclassNum]
+layer_sizes = [784,200,200,SubclassNum]
 N_layers = len(layer_sizes) - 1
 batch_size = 50
 
-N_iters = 1000  #epoch
+N_iters = 3000  #epoch
 # 50000 training samples, 10000 validation samples, 10000 testing samples
 # N_train = 10**4 * 5
 # N_valid = 10**4
@@ -32,26 +34,45 @@ N_train = 10**4*2
 N_valid = 10**3*5
 N_tests = 10**4
 
-all_N_meta_iter = [50, 0, 0]
+all_N_meta_iter = [0, 0, 50]
 
-clientNum = 5
+clientNum = 3
 
 
-
-alpha = 1.0
-meta_alpha = 10**4
+# 0.05
+alpha = 0.005
+meta_alpha = 1
 beta = 0.8
 seed = 0
 
 #  print the output every N_thin iterations
-N_thin = 50
+N_thin = 500
 N_meta_thin = 1
-log_L2_init = -6.0
+log_L2_init = -3.0
+
+
+
+
+
+class Logger(object):
+    def __init__(self, filename="Default.log"):
+        self.terminal = sys.stdout
+        self.log = open(filename, "a")
+
+    def write(self, message):
+        self.terminal.write(message)
+        self.log.write(message)
+
+def genoutput(path):
+    sys.stdout = Logger(path+"/ADoutput.txt")
+
+
 
 
 def classIndexPath(fname):
     project_dir = os.environ['EXPERI_PROJECT_PATH']
     classIndexPath = project_dir+"/hyperParamServerSubSet/data"
+    # classIndexPath = os.path.expanduser('~/Desktop/hyper_parameter_tuning/hyperParamServerSubClass/data')
     return os.path.join(classIndexPath, fname)
 
 
@@ -76,17 +97,6 @@ def constrain_reg(w_parser,t_vect, name):
         raise Exception
     return all_r.vect
 
-def process_reg(w_parser, t_vect):
-    # Remove the redundancy due to sharing regularization within units
-    all_r = w_parser.new_vect(t_vect)
-    new_r = np.zeros((0,))
-    for i in range(N_layers):
-        layer = all_r[('weights', i)]
-        assert np.all(layer[:, 0] == layer[:, 1])
-        cur_r = layer[:, 0]
-        new_r = np.concatenate((new_r, cur_r))
-    return new_r
-
 
 def train_z(loss_fun, data, w_vect_0, reg):
     N_data = data['X'].shape[0]
@@ -101,17 +111,37 @@ def train_z(loss_fun, data, w_vect_0, reg):
         return loss + reg
     return sgd(grad(primal_loss), reg, w_vect_0, alpha, beta, N_iters)
 
-def run( subClassIndexList):
+def run(params,project_dir):
+    #
+    # medianLayer0= params['ml1'][0]
+    # medianLayer1= params['ml2'][0]
+    # medianLayer2= params['ml3'][0]
+    # medianLayer3= params['ml4'][0]
+
+    genoutput(project_dir)
+
+
+    medianLayer0= params[0]
+    medianLayer1= params[1]
+    medianLayer2= params[2]
+    medianLayer3= params[3]
+
+
+    # medianLayer0= 0.3
+    # medianLayer1= 1.3
+    # medianLayer2= 2.3
+    # medianLayer3= 3.3
+
+
     RS = RandomState((seed, "to p_rs"))
     data = loadData.loadMnist()
 
-
-    train_data,tests_data = loadData.load_data_as_dict(data, classNum, subClassIndexList.__getitem__(0))
-
     train_data_subclass = []
+
+    train_data, tests_data = loadData.load_data_as_dict(data, classNum)
+
+
     train_data_subclass= loadSubsetData(train_data,RS, N_train, clientNum)
-
-
 
     print "training samples {0}: testing samples: {1}".format(N_train,N_tests)
 
@@ -124,13 +154,25 @@ def run( subClassIndexList):
         init_scales[('biases',  i)] = 1.0
     init_scales = init_scales.vect
 
+    def process_reg(t_vect):
+        # Remove the redundancy due to sharing regularization within units
+        all_r = w_parser.new_vect(t_vect)
+        new_r = np.zeros((0,))
+        for i in range(N_layers):
+            layer = all_r[('weights', i)]
+            assert np.all(layer[:, 0] == layer[:, 1])
+            cur_r = layer[:, 0]
+            new_r = np.concatenate((new_r, cur_r))
+        return new_r
 
+    fraction_error = 0.00
     all_regs, all_tests_loss = [], []
     def train_reg(reg_0, constraint, N_meta_iter, i_top):
         def hyperloss(reg, i_hyper, cur_train_data, cur_valid_data):
             RS = RandomState((seed, i_top, i_hyper, "hyperloss"))
             w_vect_0 = RS.randn(N_weights) * init_scales
             w_vect_final = train_z(loss_fun, cur_train_data, w_vect_0, reg)
+            # fraction_error = frac_err(w_vect_final,**cur_valid_data)
             return loss_fun(w_vect_final, **cur_valid_data)
         hypergrad = grad(hyperloss)
 
@@ -154,12 +196,11 @@ def run( subClassIndexList):
                 constrained_grad = constrain_reg(w_parser, raw_grad, constraint)
 
 
-                # cur_reg -= constrained_grad / np.abs(constrained_grad + 1e-8) * meta_alpha/clientNum
+                # cur_reg -= constrained_grad / np.abs(constrained_grad + 1e-8) * meta_alpha
                 cur_reg -= constrained_grad * meta_alpha/clientNum
 
             print "\n"
-
-
+            # print "constrained_grad",constrained_grad
         return cur_reg
 
 
@@ -176,15 +217,26 @@ def run( subClassIndexList):
     #     loss = new_hyperloss(reg, 0, *cur_split)
     #     print "Results: s= {0}, loss = {1}".format(s, loss)
 
-    reg = np.ones(N_weights) * log_L2_init
+    # reg = np.ones(N_weights) * log_L2_init
+    shape0 = layer_sizes.__getitem__(0)
+    shape1 = layer_sizes.__getitem__(1)
+    shape2 = layer_sizes.__getitem__(2)
+    shape3 = layer_sizes.__getitem__(3)
+
+    l1= np.ones(shape0*shape1)* medianLayer0
+    l2= np.ones(shape1*shape2+shape1)* medianLayer1
+    l3= np.ones(shape2*shape3+shape2)* medianLayer2
+    l4= np.ones(shape3)* medianLayer3
+    reg = np.concatenate([l1,l2,l3,l4])
 
     constraints = ['universal', 'layers', 'units']
     for i_top, (N_meta_iter, constraint) in enumerate(zip(all_N_meta_iter, constraints)):
         print "Top level iter {0}".format(i_top)
         reg = train_reg(reg, constraint, N_meta_iter, i_top)
 
-    all_L2_regs = np.array(zip(*map(w_parser, process_reg, all_regs)))
-    return all_L2_regs, all_tests_loss
+    all_L2_regs = np.array(zip(*map(process_reg, all_regs)))
+    # return all_L2_regs, all_tests_loss
+    return all_tests_loss.__getitem__(all_tests_loss.__len__()-1)
 
 def plot():
     import matplotlib.pyplot as plt
@@ -221,31 +273,43 @@ def plot():
     plt.savefig('bottom_layer_filter.png')
 
 
-def generateClassIndexList(classNum, SubclassNum, clientNum):
 
-    classIndexFile = classIndexPath("classIndexList")
-    classIndexList = []
-    # if not os.path.exists(classIndexFile):
-    with open(classIndexFile, 'w') as fout:
-        nums = [x for x in range(10)]
-        random.shuffle(nums)
-        num1 = nums[2:4]
-        for i in range (0,clientNum):
-            startNum = (i*SubclassNum)%classNum
-            if (startNum+SubclassNum) > classNum:
-                classIndex = nums[startNum: classNum]+nums[ 0:classNum-startNum]
-            else:
-                classIndex = nums[startNum:(startNum + SubclassNum)]
-            classIndexList.append(classIndex)
-        fout.write("\t".join(np.array(map(str, classIndexList))))
-
-
-    return classIndexList
-
-
+from spearmint import spearmint_pb2
 if __name__ == '__main__':
-    subClassIndexList = generateClassIndexList(classNum, SubclassNum, 1)
-    results = run( subClassIndexList)
+    # params = []
+    # param = spearmint_pb2.Parameter()
+    # param.name = "ml1"
+    # param.dbl_val.append (float(3.00))
+    # params.append(param)
+    # param = spearmint_pb2.Parameter()
+    # param.name = "ml2"
+    # param.dbl_val.append (float(3.00))
+    # params.append(param)
+    # param = spearmint_pb2.Parameter()
+    # param.name = "ml3"
+    # param.dbl_val.append (float(3.00))
+    # params.append(param)
+    # param = spearmint_pb2.Parameter()
+    # param.name = "ml4"
+    # param.dbl_val.append (float(3.00))
+    # params.append(param)
+
+    project_dir = os.environ['EXPERI_PROJECT_PATH']+"/hyperParamTuning/experiment/1/11/example/"
+    filedir = project_dir+"best_job_and_result.txt"
+
+
+
+
+    count = 0
+    params = []
+    with open(filedir, 'r') as fin:
+        for line in fin:
+            if 'dbl_val' in line:
+                params.append(float(line.split(": ")[1]))
+
+
+    results = run( params,project_dir)
+    print results
     # with open('results.pkl', 'w') as f:
     #     pickle.dump(results, f, 1)
     # plot()

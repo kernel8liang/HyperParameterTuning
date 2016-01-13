@@ -22,7 +22,7 @@ layer_sizes = [784,200,200,SubclassNum]
 N_layers = len(layer_sizes) - 1
 batch_size = 50
 
-N_iters = 400  #epoch
+N_iters = 400
 # 50000 training samples, 10000 validation samples, 10000 testing samples
 # N_train = 10**4 * 5
 # N_valid = 10**4
@@ -32,14 +32,14 @@ N_train = 10**3*2
 N_valid = 10**2*5
 N_tests = 10**3
 
-all_N_meta_iter = [0, 0, 10]
+all_N_meta_iter = [0, 0, 2]
 
-clientNum = 3
+clientNum = 5
 
 
 # 0.05
-alpha = 0.005
-meta_alpha = 1
+alpha = 0.05
+meta_alpha = 10**4
 beta = 0.8
 seed = 0
 
@@ -112,10 +112,10 @@ def run(params):
     medianLayer2= params['ml3'][0]
     medianLayer3= params['ml4'][0]
 
-    # medianLayer0= 0.3
-    # medianLayer1= 1.3
-    # medianLayer2= 2.3
-    # medianLayer3= 3.3
+    # medianLayer0= -3
+    # medianLayer1= -3
+    # medianLayer2= -3
+    # medianLayer3= -3.3
 
 
     RS = RandomState((seed, "to p_rs"))
@@ -181,9 +181,9 @@ def run(params):
                 constrained_grad = constrain_reg(w_parser, raw_grad, constraint)
 
 
-                # cur_reg -= constrained_grad / np.abs(constrained_grad + 1e-8) * meta_alpha
+                # cur_reg -= constrained_grad / np.abs(constrained_grad + 1e-8) * meta_alpha/clientNum
                 cur_reg -= constrained_grad * meta_alpha/clientNum
-
+                # cur_reg -= np.sign(constrained_grad) * meta_alpha/clientNum
             print "\n"
             # print "constrained_grad",constrained_grad
         return cur_reg
@@ -221,7 +221,8 @@ def run(params):
 
     all_L2_regs = np.array(zip(*map(process_reg, all_regs)))
     # return all_L2_regs, all_tests_loss
-    return all_tests_loss.__getitem__(all_tests_loss.__len__()-1)
+    # return all_tests_loss.__getitem__(all_tests_loss.__len__()-1)
+    return sum(all_tests_loss)/(all_tests_loss.__len__()-1)
 
 def plot():
     import matplotlib.pyplot as plt

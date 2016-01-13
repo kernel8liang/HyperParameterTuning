@@ -3,9 +3,10 @@
 import pickle
 
 import numpy as np
+import os
 
 import hyperParamServer.loaddataSubClass as loadData
-from funkyyak import grad
+from funkyyak import grad, getval
 from hypergrad.mnist import random_partition
 from hypergrad.nn_utils import make_nn_funs
 from hypergrad.optimizers import sgd_meta_only as sgd
@@ -18,7 +19,7 @@ layer_sizes = [784,200,200,SubclassNum]
 N_layers = len(layer_sizes) - 1
 batch_size = 50
 
-N_iters = 3000  #epoch
+N_iters = 1000  #epoch
 # 50000 training samples, 10000 validation samples, 10000 testing samples
 # N_train = 10**4 * 5
 # N_valid = 10**4
@@ -28,21 +29,21 @@ N_train = 10**4*2 *3
 N_valid = 10**3*5 *3
 N_tests = 10**4 *3
 
-all_N_meta_iter = [50, 0, 0]#epoch
+all_N_meta_iter = [0, 0, 50]#epoch
 
 clientNum = 3
 
 
 
-alpha = 0.005
-meta_alpha = 1
+alpha = 0.05
+meta_alpha = 10**4
 beta = 0.8
 seed = 0
 
 #  print the output every N_thin iterations
 N_thin = 50
 N_meta_thin = 1
-log_L2_init = -3.0
+log_L2_init = -6.0
 
 
 class Logger(object):
@@ -122,8 +123,8 @@ def run( ):
             minibatch = dictslice(data, idxs)
             loss = loss_fun(w_vect, **minibatch)
             reg = regularization(w_vect, reg)
-            # if record_results and i_primal % N_thin == 0:
-            #     print "Iter {0}: train: {1}".format(i_primal, getval(loss))
+            if record_results and i_primal % N_thin == 0:
+                print "Iter {0}: train: {1}".format(i_primal, getval(loss))
             return loss + reg
         return sgd(grad(primal_loss), reg, w_vect_0, alpha, beta, N_iters)
 
@@ -153,6 +154,7 @@ def run( ):
             print "\n"
             # cur_reg -= constrained_grad / np.abs(constrained_grad + 1e-8) * meta_alpha
             cur_reg -= constrained_grad * meta_alpha
+            # cur_reg -= np.sign(constrained_grad) * meta_alpha
 
         return cur_reg
 
@@ -216,7 +218,7 @@ def plot():
 
 def experiment():
     project_dir = os.environ['EXPERI_PROJECT_PATH']
-    filedir = project_dir+"/hyperParamServerSubSet/experiment/1/12"
+    filedir = project_dir+"/hyperParamServerSubSet/experiment/1/13"
     genoutput(filedir)
     run( )
 
