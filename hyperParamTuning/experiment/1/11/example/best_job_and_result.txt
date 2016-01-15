@@ -1,0 +1,11 @@
+Best result: 1.948455
+Job-id: 6828
+Parameters: 
+name: "ml1"
+dbl_val: -1.25366210938
+name: "ml2"
+dbl_val: -2.13256835938
+name: "ml3"
+dbl_val: -3.75854492188
+name: "ml4"
+dbl_val: -3.07983398438

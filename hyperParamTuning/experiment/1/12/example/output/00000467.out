@@ -1,0 +1,121 @@
+Running in wrapper mode for '467'
+
+Running python job.
+
+spear_wrapper job #:467
+spear_wrapper in directory: /home/jie/d3/fujie/copy1/hyper_parameter_tuning/hyperParamTuning/experiment/1
+spear_wrapper params are:{u'ml2': array([-0.359375]), u'ml3': array([-3.859375]), u'ml1': array([-5.109375]), u'ml4': array([-1.015625]), u'experiment_dir': [u'/home/jie/d3/fujie/copy1/hyper_parameter_tuning/hyperParamTuning/experiment/1/12/example']}
+training samples 2000: testing samples: 1000
+Top level iter 0
+Top level iter 1
+Top level iter 2
+Iter 0: train: 2.82473188711
+Iter 50: train: 2.2043796167
+Iter 100: train: 2.21286874721
+Iter 150: train: 2.12109439893
+Iter 200: train: 2.0650345812
+Iter 250: train: 1.94723889867
+Iter 300: train: 2.01455055554
+Iter 350: train: 1.69556942661
+Hyper iter 0, test loss 1.66950745466
+Cur_reg [-5.109375 -5.109375 -5.109375 ..., -1.015625 -1.015625 -1.015625]
+Iter 0: train: 2.98948744388
+Iter 50: train: 2.2246374558
+Iter 100: train: 2.20041352303
+Iter 150: train: 2.1117433275
+Iter 200: train: 2.0518719132
+Iter 250: train: 1.86523593681
+Iter 300: train: 1.7511949871
+Iter 350: train: 1.6554359022
+Iter 0: train: 3.14911638555
+Iter 50: train: 2.19763543934
+Iter 100: train: 2.1790968568
+Iter 150: train: 1.96465132623
+Iter 200: train: 1.82444924788
+Iter 250: train: 1.72357664046
+Iter 300: train: 1.52985714683
+Iter 350: train: 1.56940863382
+Iter 0: train: 2.627159928
+Iter 50: train: 2.12013261379
+Iter 100: train: 1.98487649036
+Iter 150: train: 1.85910344607
+Iter 200: train: 1.60889836745
+Iter 250: train: 1.55606849308
+Iter 300: train: 1.52802017842
+Iter 350: train: 1.57758897352
+Iter 0: train: 2.79309960842
+Iter 50: train: 2.21517144347
+Iter 100: train: 1.9959017672
+Iter 150: train: 1.9851707568
+Iter 200: train: 1.80029076276
+Iter 250: train: 1.58312970428
+Iter 300: train: 1.51743364137
+Iter 350: train: 1.36881099398
+Iter 0: train: 2.67538738658
+Iter 50: train: 2.12989135933
+Iter 100: train: 2.01242464292
+Iter 150: train: 1.80789919772
+Iter 200: train: 1.61489174846
+Iter 250: train: 1.63149276341
+Iter 300: train: 1.50242635401
+Iter 350: train: 1.36425319187
+
+
+Iter 0: train: 2.89771465764
+Iter 50: train: 2.16927406553
+Iter 100: train: 2.14067899048
+Iter 150: train: 2.00541124691
+Iter 200: train: 1.85953454415
+Iter 250: train: 1.67185741148
+Iter 300: train: 1.70364327841
+Iter 350: train: 1.31450795395
+Hyper iter 1, test loss 1.33624312891
+Cur_reg [-5.109375 -5.109375 -5.109375 ..., -1.015625 -1.015625 -1.015625]
+Iter 0: train: 2.99886326624
+Iter 50: train: 2.14499584339
+Iter 100: train: 2.16507010159
+Iter 150: train: 2.02659018144
+Iter 200: train: 1.8625183504
+Iter 250: train: 1.56412960841
+Iter 300: train: 1.50563302966
+Iter 350: train: 1.4707832991
+Iter 0: train: 2.91526148294
+Iter 50: train: 2.16708376269
+Iter 100: train: 2.07744282601
+Iter 150: train: 2.00351553666
+Iter 200: train: 1.7692134806
+Iter 250: train: 1.5506951778
+Iter 300: train: 1.41420494742
+Iter 350: train: 1.26099373895
+Iter 0: train: 2.97860450493
+Iter 50: train: 2.11319435316
+Iter 100: train: 2.00623096646
+Iter 150: train: 1.87559222422
+Iter 200: train: 1.60705835911
+Iter 250: train: 1.374017653
+Iter 300: train: 1.16904451143
+Iter 350: train: 1.32232534989
+Iter 0: train: 2.95682462064
+Iter 50: train: 2.14071935814
+Iter 100: train: 2.02706365948
+Iter 150: train: 1.81559969533
+Iter 200: train: 1.73081553457
+Iter 250: train: 1.41605997272
+Iter 300: train: 1.22837052952
+Iter 350: train: 1.21780051777
+Iter 0: train: 3.0162586654
+Iter 50: train: 2.07947237256
+Iter 100: train: 1.90612959159
+Iter 150: train: 1.65860802291
+Iter 200: train: 1.57656914818
+Iter 250: train: 1.34913654351
+Iter 300: train: 1.32498877902
+Iter 350: train: 1.22893676178
+
+
+Got result 3.005751
+
+Job file reloaded.
+Completed successfully in 1916.14 seconds. [3.005751]
+setting job 467 complete
+set...
