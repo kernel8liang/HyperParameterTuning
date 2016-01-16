@@ -5,6 +5,7 @@ import pickle
 import numpy as np
 
 from hypergrad.util import dictslice
+from six.moves import cPickle
 
 
 def datapath(fname):
@@ -107,8 +108,23 @@ def loadMnist():
         data = pickle.load(f)
     return data
 
+
+train_path="/home/jie/.keras/datasets/cifar10_kmeans/trainData"
+test_path="/home/jie/.keras/datasets/cifar10_kmeans/testData"
+
+
+def loadCifar10():
+    with open(train_path, "rb") as f:
+        data_train = cPickle.load(f)
+        label_train = cPickle.load(f)
+    with open(test_path, "rb") as f:
+        data_test = cPickle.load(f)
+        label_test = cPickle.load(f)
+
+    return data_train, label_train, data_test, label_test
+
 if __name__=="__main__":
 
-    data = loadMnist()
+    data = loadCifar10()
     all_data = load_data_as_dict(data, 10, subClassIndexList=[1,2,3,4])
     all_data = load_data_as_dict(data, 10, subClassIndexList=[1,2,3,4])

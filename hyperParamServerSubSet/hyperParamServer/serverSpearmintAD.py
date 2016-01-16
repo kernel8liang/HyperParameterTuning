@@ -40,7 +40,7 @@ clientNum = 5
 
 # 0.05
 alpha = 0.05
-meta_alpha = 0.1
+meta_alpha = 10**4
 beta = 0.8
 seed = 0
 
@@ -183,7 +183,7 @@ def run(params,project_dir):
                 all_tests_loss.append(tests_loss)
                 all_regs.append(cur_reg.copy())
                 print "Hyper iter {0}, test loss {1}".format(i_hyper, all_tests_loss[-1])
-                # print "Cur_reg", np.mean(cur_reg)
+                print "Cur_reg", np.mean(cur_reg)
                 print "Cur_reg", cur_reg
 
             for client_i in range (0,clientNum):
@@ -199,7 +199,7 @@ def run(params,project_dir):
                 cur_reg -= constrained_grad * meta_alpha/clientNum
                 # cur_reg -= np.sign(constrained_grad) * meta_alpha/clientNum
             print "\n"
-            # print "constrained_grad",constrained_grad
+            print "constrained_grad",constrained_grad
         return cur_reg
 
 

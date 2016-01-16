@@ -11,8 +11,10 @@
       <sourceFolder url="file://$MODULE_DIR$/spearmint" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/library/spearmint" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/library" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/library/GPyOpt" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/BayesianBNN" isTestSource="false" />
     </content>
-    <orderEntry type="inheritedJdk" />
+    <orderEntry type="jdk" jdkName="Remote Python 2.7.11 (ssh://jie@drmad1.cloudapp.net:22/home/jie/anaconda2/bin/python2.7)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
   <component name="TestRunnerService">

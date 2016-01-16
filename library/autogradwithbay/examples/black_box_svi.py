@@ -8,7 +8,7 @@ import autogradwithbay.scipy.stats.multivariate_normal as mvn
 import autogradwithbay.scipy.stats.norm as norm
 
 from autogradwithbay import grad
-from optimizers import adam
+from autogradwithbay.examples.optimizers import adam
 
 
 def black_box_variational_inference(logprob, D, num_samples):

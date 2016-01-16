@@ -107,7 +107,8 @@ def train_z(loss_fun, data, w_vect_0, reg):
 
 def run( ):
     RS = RandomState((seed, "to p_rs"))
-    data = loadData.loadMnist()
+    # data = loadData.loadMnist()
+    data = loadData.loadCifar10()
 
     train_data_subclass = []
 
