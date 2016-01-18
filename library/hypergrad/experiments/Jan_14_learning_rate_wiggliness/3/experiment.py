@@ -1,12 +1,12 @@
 """Gradient wrt learning rate"""
-import numpy as np
-import numpy.random as npr
 import pickle
 
-from hypergrad.data import load_data
-from hypergrad.nn_utils import make_nn_funs, BatchList
-from hypergrad.optimizers import sgd
-from hypergrad.odyssey import omap
+import numpy as np
+import numpy.random as npr
+
+from hypergrad import load_data
+from hypergrad import make_nn_funs, BatchList
+from hypergrad import sgd
 
 layer_sizes = [784, 200, 50, 10]
 L2_reg = 0.0

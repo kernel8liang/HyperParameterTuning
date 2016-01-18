@@ -12,11 +12,11 @@ ROTATED_ALPHABETS = [6, 10, 23, 38, 39]
 FLIPPED_ALPHABETS = [6, 10, 23, 38, 39]
 
 def datapath(fname):
-    datadir = os.path.expanduser('~/repos/hypergrad/data/omniglot')
+    datadir = os.path.expanduser('/home/jie/d2/bitbucket/hypergradient_bo/experiments/Jan_31_multitask_as_L2/7')
     return os.path.join(datadir, fname)
 
 def mat_to_pickle():
-    data = scipy.io.loadmat(datapath('chardata.mat'))
+    data = scipy.io.loadmat(datapath('data_background_small1.mat'))
     images = data['data'].T.astype(np.float16) # Flattened images, (24345, 784) in range [0, 1]
     alphabet_labels = np.argmax(data['target'], axis=0) # (24345, ) ints representing alphabets
     char_labels = data['targetchar'][0, :] - 1 # (24345, ) ints representing characters

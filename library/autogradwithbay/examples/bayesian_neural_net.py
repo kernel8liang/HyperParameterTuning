@@ -107,4 +107,4 @@ if __name__ == '__main__':
     print("Optimizing variational parameters...")
     variational_params = adam(gradient, init_var_params,
                               step_size=0.1, num_iters=1000, callback=callback)
-    plt.savefig("result.pdf")
+    plt.savefig("result_mnist.pdf")

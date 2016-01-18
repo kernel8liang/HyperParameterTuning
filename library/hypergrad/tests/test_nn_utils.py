@@ -1,5 +1,7 @@
 import numpy as np
-from hypergrad.nn_utils import VectorParser
+
+from hypergrad import VectorParser
+
 
 def test_vector_parser():
     P = VectorParser()

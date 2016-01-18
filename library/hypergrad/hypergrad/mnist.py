@@ -8,7 +8,7 @@ import pickle
 from hypergrad.util import dictslice
 
 def datapath(fname):
-    datadir = os.path.expanduser('~/PycharmProjects/hyerParameterTuning/hypergrad/data/mnist')
+    datadir = os.path.expanduser('/home/jie/d2/bitbucket/hypergradient_bo/data/mnist')
     return os.path.join(datadir, fname)
 
 def mnist():
@@ -83,6 +83,4 @@ def load_data_dicts(*args):
     return [{"X" : dat[0], "T" : dat[1]} for dat in datapairs]
 
 if __name__=="__main__":
-    # lecun_gz_to_pickle()
-    data = load_data()
-    load_data()
+    lecun_gz_to_pickle()

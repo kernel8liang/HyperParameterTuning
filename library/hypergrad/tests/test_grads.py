@@ -5,9 +5,9 @@ import numpy as np
 import numpy.random as npr
 
 from funkyyak import grad, kylist
-from hypergrad.nn_utils import BatchList, VectorParser
-from hypergrad.optimizers import sgd, sgd2, sgd3, sgd_parsed
-from hypergrad.optimizers import simple_sgd, rms_prop, adam
+from hypergrad import BatchList, VectorParser
+from hypergrad import sgd, sgd2, sgd3, sgd_parsed
+from hypergrad import simple_sgd, rms_prop, adam
 
 npr.seed(0)
 

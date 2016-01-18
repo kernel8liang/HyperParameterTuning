@@ -1,6 +1,8 @@
-import numpy.random as npr
 import numpy as np
-from hypergrad.exact_rep import BitStore
+import numpy.random as npr
+
+from hypergrad import BitStore
+
 npr.seed(1)
 
 def test_pop_empty():

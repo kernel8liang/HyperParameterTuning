@@ -3,11 +3,11 @@ from collections import defaultdict, OrderedDict
 
 import numpy as np
 
-import hypergrad.omniglot as omniglot
+import hypergrad as omniglot
 from funkyyak import grad, getval
-from hypergrad.nn_utils import make_nn_funs, VectorParser
-from hypergrad.optimizers import sgd_meta_only_sub as sgd
-from hypergrad.util import RandomState, dictslice
+from hypergrad import RandomState, dictslice
+from hypergrad import make_nn_funs, VectorParser
+from hypergrad import sgd_meta_only_sub as sgd
 
 # ----- Fixed params -----
 layer_sizes = [784, 400, 200, 55]

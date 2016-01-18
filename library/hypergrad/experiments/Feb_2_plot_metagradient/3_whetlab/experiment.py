@@ -6,10 +6,10 @@ import numpy as np
 import whetlab
 
 from funkyyak import grad, kylist
-from hypergrad.data import load_data_dicts
-from hypergrad.nn_utils import make_nn_funs, VectorParser, logit, inv_logit, fill_parser
-from hypergrad.optimizers import sgd_parsed
-from hypergrad.util import RandomState
+from hypergrad import RandomState
+from hypergrad import load_data_dicts
+from hypergrad import make_nn_funs, VectorParser, logit, inv_logit, fill_parser
+from hypergrad import sgd_parsed
 
 parameters = { 'init_log_alphas':{'min':-3, 'max':2, 'type':'float'},
                'init_invlogit_betas':{'min':inv_logit(0.1), 'max':inv_logit(0.999),'type':'float'},

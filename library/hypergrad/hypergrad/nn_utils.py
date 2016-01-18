@@ -3,6 +3,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 from collections import OrderedDict
 
+
 class WeightsParser(object):
     def __init__(self):
         self.idxs_and_shapes = {}
@@ -23,6 +24,7 @@ class WeightsParser(object):
             vect[idxs] = val.ravel()
         else:
             vect[idxs] = val  # Can't unravel a float.
+
 
 class VectorParser(object):
     def __init__(self):
@@ -49,7 +51,7 @@ class VectorParser(object):
         return new_parser
 
     def as_dict(self):
-        return {k : self[k] for k in self.names}
+        return {k: self[k] for k in self.names}
 
     @property
     def names(self):
@@ -67,12 +69,14 @@ class VectorParser(object):
         idxs, shape = self.idxs_and_shapes[name]
         self.vect[idxs].reshape(shape)[:] = val
 
+
 def fill_parser(parser, items):
     """Build a vector by assigning each block the corresponding value in
        the items vector."""
     partial_vects = [np.full(parser[name].size, items[i])
                      for i, name in enumerate(parser.names)]
     return np.concatenate(partial_vects, axis=0)
+
 
 class BatchList(list):
     def __init__(self, N_total, N_batch):
@@ -82,13 +86,20 @@ class BatchList(list):
             start += N_batch
         self.all_idxs = slice(0, N_total)
 
+
 def logsumexp(X, axis):
     max_X = np.max(X)
     return max_X + np.log(np.sum(np.exp(X - max_X), axis=axis, keepdims=True))
 
+
 def logit(x): return 1 / (1 + np.exp(-x))
-def inv_logit(y): return -np.log( 1/y - 1)
+
+
+def inv_logit(y): return -np.log(1 / y - 1)
+
+
 def d_logit(x): return logit(x) * (1 - logit(x))
+
 
 def make_nn_funs(layer_sizes):
     parser = VectorParser()
@@ -103,7 +114,7 @@ def make_nn_funs(layer_sizes):
         N_iter = len(layer_sizes) - 1
         for i in range(N_iter):
             cur_W = W[('weights', i)]
-            cur_B = W[('biases',  i)]
+            cur_B = W[('biases', i)]
             cur_units = np.dot(cur_units, cur_W) + cur_B
             if i == (N_iter - 1):
                 cur_units = cur_units - logsumexp(cur_units, axis=1)
@@ -119,36 +130,38 @@ def make_nn_funs(layer_sizes):
 
     def frac_err(W_vect, X, T):
         preds = np.argmax(predictions(W_vect, X), axis=1)
-        return np.mean(np.argmax(T, axis=1) != preds)
+        return 100.0 * np.mean(np.argmax(T, axis=1) != preds)
 
     return parser, predictions, loss, frac_err
+
 
 def nice_layer_name(weight_key):
     """Takes a tuple like ('weights', 2) and returns a nice string like "2nd layer weights"
        for use in plots and legends."""
     return "Layer {num} {name}".format(num=weight_key[1] + 1, name=weight_key[0])
 
-def plot_images(images, ax, ims_per_row=5, padding=5, digit_dimensions=(28,28),
-                cmap=matplotlib.cm.binary, vmin=None):
 
+def plot_images(images, ax, ims_per_row=5, padding=5, digit_dimensions=(28, 28),
+                cmap=matplotlib.cm.binary, vmin=None):
     """iamges should be a (N_images x pixels) matrix."""
     N_images = images.shape[0]
     N_rows = np.ceil(float(N_images) / ims_per_row)
     pad_value = np.min(images.ravel())
     concat_images = np.full(((digit_dimensions[0] + padding) * N_rows + padding,
-                            (digit_dimensions[0] + padding) * ims_per_row + padding), pad_value)
+                             (digit_dimensions[0] + padding) * ims_per_row + padding), pad_value)
     for i in range(N_images):
         cur_image = np.reshape(images[i, :], digit_dimensions)
         row_ix = i / ims_per_row  # Integer division.
         col_ix = i % ims_per_row
-        row_start = padding + (padding + digit_dimensions[0])*row_ix
-        col_start = padding + (padding + digit_dimensions[0])*col_ix
+        row_start = padding + (padding + digit_dimensions[0]) * row_ix
+        col_start = padding + (padding + digit_dimensions[0]) * col_ix
         concat_images[row_start: row_start + digit_dimensions[0],
-                      col_start: col_start + digit_dimensions[0]] \
+        col_start: col_start + digit_dimensions[0]] \
             = cur_image
     cax = ax.matshow(concat_images, cmap=cmap, vmin=vmin)
     plt.xticks(np.array([]))
     plt.yticks(np.array([]))
     return cax
+
 
 plot_mnist_images = plot_images

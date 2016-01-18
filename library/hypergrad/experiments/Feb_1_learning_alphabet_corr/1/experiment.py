@@ -3,11 +3,11 @@ from collections import defaultdict
 
 import numpy as np
 
-import hypergrad.omniglot as omniglot
+import hypergrad as omniglot
 from funkyyak import grad, getval
-from hypergrad.nn_utils import make_nn_funs, VectorParser
-from hypergrad.optimizers import sgd_meta_only as sgd
-from hypergrad.util import RandomState
+from hypergrad import RandomState
+from hypergrad import make_nn_funs, VectorParser
+from hypergrad import sgd_meta_only as sgd
 
 VERBOSE = True
 # ----- Fixed params -----

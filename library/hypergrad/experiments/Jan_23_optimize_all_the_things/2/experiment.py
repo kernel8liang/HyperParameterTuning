@@ -1,16 +1,13 @@
 """Gradient descent to optimize everything"""
 """Two layer net. Improved stability by setting rms_prop's gamma to zero"""
+import pickle
+
 import numpy as np
 import numpy.random as npr
-import pickle
-from functools import partial
-import itertools as it
-import socket
 
-from hypergrad.data import load_data_subset
-from hypergrad.nn_utils import make_nn_funs, BatchList, VectorParser, logit, inv_logit
-from hypergrad.optimizers import sgd3, rms_prop
-from hypergrad.odyssey import omap, collect_results
+from hypergrad import load_data_subset
+from hypergrad import make_nn_funs, BatchList, VectorParser, logit, inv_logit
+from hypergrad import sgd3, rms_prop
 
 # ----- Fixed params -----
 layer_sizes = [784, 200, 10]

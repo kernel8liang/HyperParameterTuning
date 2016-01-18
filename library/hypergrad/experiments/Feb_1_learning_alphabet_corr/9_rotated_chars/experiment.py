@@ -4,11 +4,11 @@ from collections import defaultdict
 
 import numpy as np
 
-import hypergrad.omniglot as omniglot
+import hypergrad as omniglot
 from funkyyak import grad, getval
-from hypergrad.nn_utils import make_nn_funs, VectorParser
-from hypergrad.optimizers import sgd_meta_only as sgd
-from hypergrad.util import RandomState, dictmap
+from hypergrad import RandomState, dictmap
+from hypergrad import make_nn_funs, VectorParser
+from hypergrad import sgd_meta_only as sgd
 
 VERBOSE = True
 # ----- Fixed params -----
@@ -126,7 +126,7 @@ def covar_to_corr(A):
     return (A / (A_std[:, None] * A_std[None, :]))
 
 def plot():
-    from hypergrad.omniglot import show_rotated_alphabets
+    from hypergrad import show_rotated_alphabets
     import matplotlib.pyplot as plt
     import matplotlib as mpl
     with open('results.pkl') as f:

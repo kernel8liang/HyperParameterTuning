@@ -5,10 +5,10 @@ from functools import partial
 
 import numpy as np
 
-import hypergrad.omniglot as omniglot
+import hypergrad as omniglot
 from funkyyak import grad, getval
+from hypergrad import sgd_meta_only as sgd, rms_prop
 from hypergrad.nn_utils import make_nn_funs, VectorParser
-from hypergrad.optimizers import sgd_meta_only as sgd, rms_prop
 from hypergrad.util import RandomState, dictslice
 
 # ----- Fixed params -----

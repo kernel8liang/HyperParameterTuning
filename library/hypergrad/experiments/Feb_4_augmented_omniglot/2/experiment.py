@@ -3,12 +3,12 @@ import pickle
 
 import numpy as np
 
-import hypergrad.omniglot as omniglot
+import hypergrad as omniglot
 from funkyyak import grad, getval
-from hypergrad.nn_utils import make_nn_funs, VectorParser
-from hypergrad.omniglot import random_partition
-from hypergrad.optimizers import sgd_meta_only as sgd
-from hypergrad.util import RandomState, dictmap
+from hypergrad import RandomState, dictmap
+from hypergrad import make_nn_funs, VectorParser
+from hypergrad import random_partition
+from hypergrad import sgd_meta_only as sgd
 
 layer_sizes = [784, 400, 200, 55]
 N_layers = len(layer_sizes) - 1

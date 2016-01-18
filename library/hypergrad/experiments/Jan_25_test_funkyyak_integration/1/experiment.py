@@ -6,9 +6,9 @@ import numpy as np
 import numpy.random as npr
 
 from funkyyak import grad, kylist, getval
-from hypergrad.data import load_data_subset
-from hypergrad.nn_utils import make_nn_funs, BatchList, VectorParser, logit, inv_logit
-from hypergrad.optimizers import sgd5, rms_prop
+from hypergrad import load_data_subset
+from hypergrad import make_nn_funs, BatchList, VectorParser, logit, inv_logit
+from hypergrad import sgd5, rms_prop
 
 # ----- Fixed params -----
 layer_sizes = [784, 10]

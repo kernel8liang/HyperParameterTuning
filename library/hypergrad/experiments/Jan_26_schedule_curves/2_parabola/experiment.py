@@ -6,8 +6,8 @@ import numpy as np
 import numpy.random as npr
 
 from funkyyak import grad, kylist
-from hypergrad.nn_utils import VectorParser, logit, inv_logit
-from hypergrad.optimizers import sgd4, rms_prop
+from hypergrad import VectorParser, logit, inv_logit
+from hypergrad import sgd4, rms_prop
 
 # ----- Fixed params -----
 N_iters = 60
