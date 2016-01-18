@@ -6,6 +6,7 @@ import numpy as np
 
 from hypergrad.util import dictslice
 from six.moves import cPickle
+from tempfile import TemporaryFile
 
 
 def datapath(fname):
@@ -108,23 +109,64 @@ def loadMnist():
         data = pickle.load(f)
     return data
 
+#
+train_path_1="/home/jie/.keras/datasets/cifar10_kmeans_numpy/trainData"
+test_path_1="/home/jie/.keras/datasets/cifar10_kmeans_numpy/testData"
+train_path="/home/jie/.keras/datasets/cifar10_kmeans_numpy/trainData.npz"
+test_path="/home/jie/.keras/datasets/cifar10_kmeans_numpy/testData.npz"
 
-train_path="/home/jie/.keras/datasets/cifar10_kmeans/trainData"
-test_path="/home/jie/.keras/datasets/cifar10_kmeans/testData"
-
+# train_path_2="/home/jie/.keras/datasets/cifar10_kmeans_numpy/trainData1"
 
 def loadCifar10():
-    with open(train_path, "rb") as f:
-        data_train = cPickle.load(f)
-        label_train = cPickle.load(f)
-    with open(test_path, "rb") as f:
-        data_test = cPickle.load(f)
-        label_test = cPickle.load(f)
+    # with open(train_path, "rb") as f:
+    #     data_train = cPickle.load(f)
+    #     label_train = cPickle.load(f)
+    # with open(test_path, "rb") as f:
+    #     data_test = cPickle.load(f)
+    #     label_test = cPickle.load(f)
+    npzfile = np.load(train_path)
+    data_train=npzfile['X']
+    label_train=npzfile['y']
+    npzfile = np.load(test_path)
+    data_test=npzfile['X']
+    label_test=npzfile['y']
+
 
     return data_train, label_train, data_test, label_test
 
+
 if __name__=="__main__":
 
+
+
     data = loadCifar10()
+    data_train, label_train, data_test, label_test = data
+    # print("complete loading the file ")
+    # d = {}
+    # for i in xrange(11):
+    #     d.update({i:i-1})
+    #
+    #
+    # for k, v in d.iteritems():
+    #     np.place(label_train,label_train==k,v)
+    #     np.place(label_test,label_test==k,v)
+    # outfile1 = TemporaryFile(train_path_1)
+    # outfile2 = TemporaryFile(test_path_1)
+    # np.savez(outfile1, X=data_train,y=label_train)
+    # np.savez(outfile2, X=data_test,y=label_test)
+    # print("complete saving the file ")
+
+
+    # with open(train_path, "wb") as f:
+    #     cPickle.dump(data_train, f)
+    #     cPickle.dump(label_train, f)
+    # with open(test_path, "wb") as f:
+    #     cPickle.dump(data_test, f)
+    #     cPickle.dump(label_test, f)
+    # print("end saving of the file ")
+    #
     all_data = load_data_as_dict(data, 10, subClassIndexList=[1,2,3,4])
+    from hypergrad.util import RandomState
+    RS = RandomState((0, "to p_rs"))
+    all_data=  loadSubsetData(data, RS, 2000, 10)
     all_data = load_data_as_dict(data, 10, subClassIndexList=[1,2,3,4])
