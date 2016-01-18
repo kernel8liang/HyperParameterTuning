@@ -216,7 +216,7 @@ class Logger(object):
         self.log.write(message)
 
 def genoutput(path):
-    sys.stdout = Logger(path+"outputInitialCifar10.txt")
+    sys.stdout = Logger(path+"outputServerCifar10.txt")
 
 if __name__ == '__main__':
     results=experiment()
