@@ -22,6 +22,7 @@ layer_sizes = [3072, 300, 300, SubclassNum]
 N_layers = len(layer_sizes) - 1
 batch_size = 50
 N_iters = 5000
+N_train_Full = 50000
 N_train = 20000
 N_valid = 5000
 N_tests = 5000
@@ -50,7 +51,7 @@ def run():
     train_data_subclass = []
 
     train_data, tests_data = loadData.load_data_as_dict(data, classNum)
-    train_data = random_partition(train_data, RS, [N_train*3]).__getitem__(0)
+    train_data = random_partition(train_data, RS, [N_train_Full]).__getitem__(0)
     tests_data = random_partition(tests_data, RS, [ N_tests]).__getitem__(0)
 
 
@@ -140,15 +141,17 @@ def run():
             for client_i in range (0,clientNum):
 
                 RS = RandomState((seed, i_top, i_hyper, "hyperloss"))
-                cur_split = random_partition(train_data_subclass.__getitem__(client_i), RS, [N_train - N_valid, N_valid])
-                # print("calculate hypergradients")
+                cur_split = random_partition(train_data_subclass.__getitem__(client_i), RS, [N_train-N_valid, N_valid])
+                print("calculate hypergradients")
                 raw_grad = hypergrad(cur_reg, i_hyper, *cur_split)
+                print("calculate hypergradients end ")
                 constrained_grad = constrain_reg(w_parser, raw_grad, constraint)
 
 
                 # cur_reg -= constrained_grad / np.abs(constrained_grad + 1e-8) * meta_alpha/clientNum
                 cur_reg -= constrained_grad * meta_alpha/clientNum
                 # cur_reg -= np.sign(constrained_grad) * meta_alpha/clientNum
+                print("calculate hypergradients end ")
 
             print "\n"
         return cur_reg

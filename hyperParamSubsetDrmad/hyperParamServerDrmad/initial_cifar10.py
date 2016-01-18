@@ -22,7 +22,7 @@ layer_sizes = [3072, 300, 300, SubclassNum]
 N_layers = len(layer_sizes) - 1
 batch_size = 50
 N_iters = 5000
-N_train = 60000
+N_train = 50000
 N_valid = 5000
 N_tests = 5000
 
@@ -126,7 +126,7 @@ def run():
                 print "Hyper iter {0}, error rate {1}".format(i_hyper, all_tests_rates[-1])
                 print "Cur_transform", np.mean(cur_reg)
             RS = RandomState((seed, i_top, i_hyper, "hyperloss"))
-            cur_split = random_partition(train_data, RS, [N_train - N_valid, N_valid])
+            cur_split = random_partition(train_data, RS, [N_train-N_valid,N_valid])
             raw_grad = hypergrad(cur_reg, i_hyper, *cur_split)
             constrained_grad = constrain_reg(raw_grad, constraint)
             cur_reg -= np.sign(constrained_grad) * meta_alpha
