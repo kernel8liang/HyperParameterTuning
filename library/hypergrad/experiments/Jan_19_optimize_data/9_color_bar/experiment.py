@@ -1,14 +1,15 @@
 """Gradient descent to optimize dataset inputs to a neural network,
    as well as the regularization and learning parameters."""
-import pickle
-
 import matplotlib.pyplot as plt
 import numpy as np
 import numpy.random as npr
+import pickle
 
-from hypergrad import make_nn_funs, BatchList, plot_mnist_images, WeightsParser
 from hypergrad.data import load_data
+from hypergrad.nn_utils import make_nn_funs, BatchList, plot_mnist_images, WeightsParser
 from hypergrad.optimizers import sgd2
+
+
 
 # ----- Initial values of continuous hyper-parameters -----
 init_log_L2_reg = np.log(0.01)

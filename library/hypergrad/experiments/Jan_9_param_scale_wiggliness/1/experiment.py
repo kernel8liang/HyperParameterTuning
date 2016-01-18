@@ -1,13 +1,14 @@
 """First look at the gradient wrt initial parameter scale"""
-import pickle
-
-import matplotlib.pyplot as plt
 import numpy as np
 import numpy.random as npr
+import matplotlib.pyplot as plt
+import pickle
+from functools import partial
+import itertools as it
 
-from hypergrad import load_data
-from hypergrad import make_nn_funs, BatchList
-from hypergrad import sgd
+from hypergrad.data import load_data
+from hypergrad.nn_utils import make_nn_funs, BatchList
+from hypergrad.optimizers import sgd
 
 layer_sizes = [784, 200, 50, 10]
 L2_reg = 0.0

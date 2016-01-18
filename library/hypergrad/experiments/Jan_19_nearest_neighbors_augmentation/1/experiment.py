@@ -6,9 +6,9 @@ import numpy as np
 import numpy.random as npr
 
 from funkyyak import grad
-from hypergrad import BatchList, plot_mnist_images
-from hypergrad import load_data_subset
-from hypergrad import weighted_neighbors_loss, make_sq_exp_kernel
+from hypergrad.data import load_data_subset
+from hypergrad.kernel_methods import weighted_neighbors_loss, make_sq_exp_kernel
+from hypergrad.nn_utils import BatchList, plot_mnist_images
 
 L0 = 2.0
 L = 28

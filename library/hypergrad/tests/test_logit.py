@@ -1,6 +1,6 @@
 import numpy as np
 
-from hypergrad import logit, inv_logit
+from hypergrad.nn_utils import logit, inv_logit
 
 def test_logit():
     assert np.allclose(logit(0), 0.5, rtol=1e-3, atol=1e-4)

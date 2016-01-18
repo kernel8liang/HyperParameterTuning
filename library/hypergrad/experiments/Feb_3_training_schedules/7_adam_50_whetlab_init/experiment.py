@@ -5,10 +5,10 @@ from collections import defaultdict
 import numpy as np
 
 from funkyyak import grad, kylist, getval
-from hypergrad import RandomState
-from hypergrad import adam, sgd_parsed
-from hypergrad import make_nn_funs, VectorParser, logit, nice_layer_name
 from hypergrad.data import load_data_dicts
+from hypergrad.nn_utils import make_nn_funs, VectorParser, logit, nice_layer_name
+from hypergrad.optimizers import adam, sgd_parsed
+from hypergrad.util import RandomState
 
 # ----- Fixed params -----
 layer_sizes = [784, 50, 50, 50, 10]

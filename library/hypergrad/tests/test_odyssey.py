@@ -1,8 +1,6 @@
 import time
-
 import numpy.random as npr
-
-from hypergrad import omap
+from hypergrad.odyssey import omap
 
 objects = [1, (3,4), 1.04, "hello", "it's \n a hard string \\\''\to parse", ((1,'a'), 3)]
 

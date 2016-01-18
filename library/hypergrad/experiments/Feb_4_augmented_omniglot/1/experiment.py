@@ -5,10 +5,10 @@ import numpy as np
 
 import hypergrad.omniglot as omniglot
 from funkyyak import grad, getval
-from hypergrad import RandomState, dictmap
-from hypergrad import make_nn_funs, VectorParser
-from hypergrad import sgd_meta_only as sgd
+from hypergrad.nn_utils import make_nn_funs, VectorParser
 from hypergrad.omniglot import random_partition
+from hypergrad.optimizers import sgd_meta_only as sgd
+from hypergrad.util import RandomState, dictmap
 
 layer_sizes = [784, 300, 200, 55]
 N_layers = len(layer_sizes) - 1

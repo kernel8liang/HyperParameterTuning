@@ -1,8 +1,7 @@
 import numpy as np
 import numpy.random as npr
 
-from hypergrad import ExactRep
-
+from hypergrad.exact_rep import ExactRep
 npr.seed(1)
 
 def test_add_sub():

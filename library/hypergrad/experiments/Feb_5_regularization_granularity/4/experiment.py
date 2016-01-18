@@ -3,12 +3,12 @@ import pickle
 
 import numpy as np
 
-import hypergrad as mnist
+import hypergrad.mnist as mnist
 from funkyyak import grad, getval
-from hypergrad import RandomState, dictslice
-from hypergrad import make_nn_funs
-from hypergrad import random_partition
-from hypergrad import sgd_meta_only as sgd
+from hypergrad.mnist import random_partition
+from hypergrad.nn_utils import make_nn_funs
+from hypergrad.optimizers import sgd_meta_only as sgd
+from hypergrad.util import RandomState, dictslice
 
 layer_sizes = [784, 1000, 1000, 10]
 N_layers = len(layer_sizes) - 1
