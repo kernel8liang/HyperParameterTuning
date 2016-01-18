@@ -1,21 +1,20 @@
 """Runs for paper"""
 # feb-5 5
 import pickle
+import sys
 
 import numpy as np
-import os
 
 import loaddataSubClass as loadData
 from funkyyak import grad, getval
+from hypergrad.util import RandomState, dictslice
 from hypergrad.mnist import random_partition
 from hypergrad.nn_utils import make_nn_funs
 from hypergrad.optimizers import sgd_numpy_safe as sgd
-from hypergrad.util import RandomState, dictslice
-import sys
 
 classNum = 10
 SubclassNum = 10
-layer_sizes = [784,200,200,SubclassNum]
+layer_sizes = [3072,200,200,SubclassNum]
 N_layers = len(layer_sizes) - 1
 batch_size = 50
 
@@ -185,6 +184,7 @@ def run( ):
 def plot():
     import matplotlib.pyplot as plt
     import matplotlib as mpl
+    mpl.use('Agg')
     mpl.rcParams['font.family'] = 'serif'
     mpl.rcParams['image.interpolation'] = 'none'
     with open('results.pkl') as f:
