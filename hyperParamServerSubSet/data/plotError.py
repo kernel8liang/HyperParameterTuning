@@ -16,7 +16,7 @@ def plotResultFile():
     index = 1
 
     outputPath_part_final = resultFile("resultSheet.csv")
-    output_plot =  resultFile("result.pdf")
+    output_plot =  resultFile("result_mnist.pdf")
 
     # df = pd.read_csv(outputPath_part_final,delimiter='\t')
     df = pd.read_csv(outputPath_part_final, error_bad_lines=False)
