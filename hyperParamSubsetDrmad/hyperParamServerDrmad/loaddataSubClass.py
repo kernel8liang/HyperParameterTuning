@@ -164,7 +164,7 @@ if __name__=="__main__":
     # print("end saving of the file ")
     #
     all_data = load_data_as_dict(data, 10, subClassIndexList=[1,2,3,4])
-    from hypergrad import RandomState
+    from hypergrad.util import RandomState
     RS = RandomState((0, "to p_rs"))
     all_data=  loadSubsetData(data, RS, 2000, 10)
     all_data = load_data_as_dict(data, 10, subClassIndexList=[1,2,3,4])
