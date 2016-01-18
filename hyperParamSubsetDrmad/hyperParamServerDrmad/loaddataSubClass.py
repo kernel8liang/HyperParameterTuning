@@ -4,7 +4,7 @@ import pickle
 
 import numpy as np
 
-from hypergrad import dictslice
+from hypergrad.util import dictslice
 
 
 def datapath(fname):
