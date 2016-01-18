@@ -21,14 +21,14 @@ SubclassNum = 10
 layer_sizes = [3072, 300, 300, SubclassNum]
 N_layers = len(layer_sizes) - 1
 batch_size = 50
-N_iters = 10000
+N_iters = 5000
 N_train = 20000
 N_valid = 5000
 N_tests = 5000
 
 all_N_meta_iter = [0, 0, 10]
-alpha = 0.01
-meta_alpha = 0.006
+alpha = 0.05
+meta_alpha = 0.3
 beta = 0.1
 seed = 0
 N_thin = 500
@@ -50,6 +50,8 @@ def run():
     train_data_subclass = []
 
     train_data, tests_data = loadData.load_data_as_dict(data, classNum)
+    train_data = random_partition(train_data, RS, [N_train*3]).__getitem__(0)
+    tests_data = random_partition(tests_data, RS, [ N_tests]).__getitem__(0)
 
 
     train_data_subclass= loadData.loadSubsetData(train_data,RS, N_train, clientNum)
