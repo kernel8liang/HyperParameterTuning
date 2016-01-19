@@ -27,9 +27,9 @@ N_train = 20000
 N_valid = 5000
 N_tests = 5000
 
-all_N_meta_iter = [0, 0, 10]
-alpha = 0.05
-meta_alpha = 0.3
+all_N_meta_iter = [0, 0, 25]
+alpha = 0.005
+meta_alpha = 0.2
 beta = 0.1
 seed = 0
 N_thin = 500
@@ -145,12 +145,10 @@ def run():
                 print("calculate hypergradients")
                 raw_grad = hypergrad(cur_reg, i_hyper, *cur_split)
                 print("calculate hypergradients end ")
-                constrained_grad = constrain_reg(w_parser, raw_grad, constraint)
 
+                constrained_grad = constrain_reg(raw_grad, constraint)
+                cur_reg -= np.sign(constrained_grad) * meta_alpha/clientNum
 
-                # cur_reg -= constrained_grad / np.abs(constrained_grad + 1e-8) * meta_alpha/clientNum
-                cur_reg -= constrained_grad * meta_alpha/clientNum
-                # cur_reg -= np.sign(constrained_grad) * meta_alpha/clientNum
                 print("calculate hypergradients end ")
 
             print "\n"

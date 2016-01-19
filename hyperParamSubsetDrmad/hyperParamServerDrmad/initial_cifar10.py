@@ -26,9 +26,9 @@ N_train = 50000
 N_valid = 5000
 N_tests = 5000
 
-all_N_meta_iter = [0, 0, 10]
-alpha = 0.05
-meta_alpha = 0.3
+all_N_meta_iter = [0, 0, 25]
+alpha = 0.005
+meta_alpha = 0.2
 beta = 0.1
 seed = 0
 N_thin = 500
