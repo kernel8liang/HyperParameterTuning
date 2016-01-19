@@ -100,10 +100,11 @@ def loadSubsetData(data, RS, subset_sizes, clientNum):
         partitions.append(subset)
     return partitions
 
-
+mnistpath = "/home/jie/.keras/datasets/mnist_data.pkl"
 
 def loadMnist():
-    with open(datapath("mnist_data.pkl")) as f:
+    # with open(datapath("mnist_data.pkl")) as f:
+    with open(mnistpath) as f:
         data = pickle.load(f)
     return data
 

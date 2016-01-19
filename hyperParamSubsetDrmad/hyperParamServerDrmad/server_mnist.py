@@ -39,7 +39,7 @@ clientNum = 5
 
 def run():
     RS = RandomState((seed, "top_rs"))
-    data = mnist.load_data_as_dict()
+    data = loadData.loadMnist()
 
     train_data_subclass = []
 
