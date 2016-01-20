@@ -9,13 +9,13 @@ from ..core.bo import BO
 from ..util.general import samples_multidimensional_uniform, reshape
 from ..util.stats import initial_design
 import warnings
-from bayesianneuralnetwork import bayesian_neural_net_temp
+from bayesianneuralnetwork import bayesian_neural_network
 warnings.filterwarnings("ignore")
 
 
 class BayesianOptimization(BO):
     def __init__(self, f, bounds=None,  X=None, Y=None, numdata_initial_design = None,type_initial_design='random', model_optimize_interval=1, acquisition='EI',
-        acquisition_par= 0.00, model_optimize_restarts=10,  num_inducing=None, normalize=False,
+        acquisition_par= 0.00, model_optimize_restarts=10, num_inducing=None, normalize=False,BNN=True,
         exact_feval=False, verbosity=0):
         '''
         Bayesian Optimization using EI, MPI and LCB (or UCB) acquisition functions.
@@ -43,6 +43,7 @@ class BayesianOptimization(BO):
         '''
         # ------- Get default values
         self.num_inducing = num_inducing
+        self.BNN = BNN
         self.input_dim = len(bounds)
         self.normalize = normalize
         self.exact_feval = exact_feval
@@ -114,14 +115,14 @@ class BayesianOptimization(BO):
 
 
     def _init_model(self):
-        '''
-        Initializes the Gaussian Process over *f*.
-        :param X: input observations.
-        :param Y: output values.
-
-        ..Note : X and Y can be None. In this case numdata_initial_design*input_dim data are uniformly generated to initialize the model.
-
-        '''
+        # '''
+        # Initializes the Gaussian Process over *f*.
+        # :param X: input observations.
+        # :param Y: output values.
+        #
+        # ..Note : X and Y can be None. In this case numdata_initial_design*input_dim data are uniformly generated to initialize the model.
+        #
+        # '''
         # if self.sparseGP == True:
         #     if self.num_inducing ==None:
         #         raise 'Sparse model, please insert the number of inducing points'
@@ -130,9 +131,10 @@ class BayesianOptimization(BO):
         # else:
         #     self.model = GPy.models.GPRegression(self.X,self.Y,kernel=self.kernel)
         #
-        self.model = bayesian_neural_net_temp()
-        #
         # if self.exact_feval == True:
         #     self.model.Gaussian_noise.constrain_fixed(1e-6, warning=False) #to avoid numerical problems
         # else:
         #     self.model.Gaussian_noise.constrain_bounded(1e-6,1e6, warning=False) #to avoid numerical problems
+        if self.BNN==True:
+
+            self.model=bayesian_neural_network(self.X,self.Y, layer_sizes =[1, 10, 10, 1],L2_reg=0.01)
