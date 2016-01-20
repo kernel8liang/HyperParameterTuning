@@ -5,7 +5,7 @@ import pickle
 import numpy as np
 
 from hypergrad.util import dictslice
-
+from hypergrad.mnist import random_partition
 
 def datapath(fname):
 
@@ -98,13 +98,16 @@ def loadSubsetData(data, RS, subset_sizes, clientNum):
             part2 = dictslice(data,idxs1)
             subset = part1
 
-            subset['X']=list(itertools.chain(*zip(part1['X'] , part2['X'])))
-            subset['T']=list(itertools.chain(*zip(part1['T'] ,part2['T'])))
-
+            subset['X']=np.concatenate((part1['X'] , part2['X']), axis=0)
+            subset['T']=np.concatenate((part1['T'] ,part2['T']), axis=0)
         else:
             idxs = slice(startNum, startNum + subset_sizes)
             subset = dictslice(data, idxs)
+
+        # subset = random_partition(subset, RS, [subset_sizes]).__getitem__(0)
         partitions.append(subset)
+
+    partitions = partitions
     return partitions
 
 mnistpath = "/home/jie/.keras/datasets/mnist_data.pkl"
@@ -143,7 +146,7 @@ def loadCifar10():
 
 if __name__=="__main__":
 
-    from hypergrad.mnist import random_partition
+
     #
     # data = loadCifar10()
     # data_train, label_train, data_test, label_test = data
