@@ -1,13 +1,42 @@
 from __future__ import absolute_import
 from __future__ import print_function
+
 import matplotlib.pyplot as plt
 
 import autogradwithbay.numpy as np
 import autogradwithbay.numpy.random as npr
 import autogradwithbay.scipy.stats.norm as norm
 
-from autogradwithbay.examples.black_box_svi import black_box_variational_inference
+from autogradwithbay import grad
 from autogradwithbay.examples.optimizers import adam
+import sys
+
+def black_box_variational_inference(logprob, D, num_samples):
+    """Implements http://arxiv.org/abs/1401.0118, and uses the
+    local reparameterization trick from http://arxiv.org/abs/1506.02557"""
+    # sys.stdout = Logger("experiment.txt")
+
+    def unpack_params(params):
+        # Variational dist is a diagonal Gaussian.
+        mean, log_std = params[:D], params[D:]
+        return mean, log_std
+
+    def gaussian_entropy(log_std):
+        return 0.5 * D * (1.0 + np.log(2*np.pi)) + np.sum(log_std)
+
+    rs = npr.RandomState(0)
+    def variational_objective(params, t):
+        """Provides a stochastic estimate of the variational lower bound."""
+        mean, log_std = unpack_params(params)
+        samples = rs.randn(num_samples, D) * np.exp(log_std) + mean
+        lower_bound = gaussian_entropy(log_std) + np.mean(logprob(samples, t))
+        loss = np.mean(logprob(samples, t))
+        print("loss is "+ str(loss))
+        return -lower_bound
+
+    gradient = grad(variational_objective)
+
+    return variational_objective, gradient, unpack_params
 
 
 def make_nn_funs(layer_sizes, L2_reg, noise_variance, nonlinearity=np.tanh):
@@ -53,7 +82,22 @@ def build_toy_dataset(n_data=40, noise_std=0.1):
     return inputs, targets
 
 
+
+import sys
+class Logger(object):
+    def __init__(self, filename="Default.log"):
+        self.terminal = sys.stdout
+        self.log = open(filename, "a")
+
+    def write(self, message):
+        self.terminal.write(message)
+        self.log.write(message)
+
+
 if __name__ == '__main__':
+
+    sys.stdout = Logger("experiment.txt")
+    # Specify inference problem by its unnor
 
     # Specify inference problem by its unnormalized log-posterior.
     rbf = lambda x: norm.pdf(x, 0, 1)
@@ -78,8 +122,9 @@ if __name__ == '__main__':
 
 
     def callback(params, t, g):
-        print("Iteration {} lower bound {}".format(t, -objective(params, t)))
-
+        lower = objective(params, t)
+        print("Iteration {} lower bound {}".format(t, lower))
+        # print("loss is "+str(loss))
         # Sample functions from posterior.
         rs = npr.RandomState(0)
         mean, log_std = unpack_params(params)
@@ -107,4 +152,4 @@ if __name__ == '__main__':
     print("Optimizing variational parameters...")
     variational_params = adam(gradient, init_var_params,
                               step_size=0.1, num_iters=1000, callback=callback)
-    plt.savefig("result.pdf")
+    # plt.savefig("result.pdf")
