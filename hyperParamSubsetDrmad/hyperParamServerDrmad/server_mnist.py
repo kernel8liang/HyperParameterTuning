@@ -131,6 +131,7 @@ def run():
                 all_avg_regs.append(np.mean(cur_reg))
                 print "Hyper iter {0}, error rate {1}".format(i_hyper, all_tests_rates[-1])
                 print "Cur_transform", np.mean(cur_reg)
+            tempConstrained_grad = np.zeros(N_weights)
             for client_i in range (0,clientNum):
 
                 RS = RandomState((seed, i_top, i_hyper, "hyperloss"))
@@ -140,9 +141,12 @@ def run():
                 print("calculate hypergradients end ")
 
                 constrained_grad = constrain_reg(raw_grad, constraint)
-                cur_reg -= np.sign(constrained_grad) * meta_alpha/clientNum
 
-                print("calculate hypergradients end ")
+                tempConstrained_grad += constrained_grad/clientNum
+
+            cur_reg -= np.sign(tempConstrained_grad) * meta_alpha
+
+            print("calculate hypergradients end ")
 
         return cur_reg
 
