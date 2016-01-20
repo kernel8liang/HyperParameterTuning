@@ -23,7 +23,7 @@ N_train = 20000
 N_valid = 5000
 N_tests = 5000
 
-all_N_meta_iter = [0, 0, 25]
+all_N_meta_iter = [0, 0, 20]
 alpha = 0.01
 meta_alpha = 0.2
 beta = 0.1
@@ -214,9 +214,12 @@ def genoutput(path):
     sys.stdout = Logger(path+"outputServerMNIST.txt")
 
 if __name__ == '__main__':
+    import time
+    t0 = time.time()
     results=experiment()
-    # results = run( )
-    # result = results
-    with open('resultsInitial.pkl', 'w') as f:
+    with open('resultsServer.pkl', 'w') as f:
         pickle.dump(results, f, 1)
-    plot()
+    t1 = time.time()
+
+    total = t1 - t0
+    print(total)
