@@ -88,7 +88,6 @@ class BO(object):
 
             # --- Augment X
             self.X = np.vstack((self.X,self.suggested_sample))
-            
             # --- Evaluate *f* in X and augment Y
             if self.n_procs==1:
                 self.Y = np.vstack((self.Y,self.f(np.array(self.suggested_sample))))
