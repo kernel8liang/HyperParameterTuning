@@ -12,6 +12,7 @@ from hypergrad.nn_utils import make_nn_funs, VectorParser
 from hypergrad.optimizers import sgd_numpy_safe as sgd
 from hypergrad.util import RandomState, dictslice, dictmap
 from hypergrad.odyssey import omap
+import loaddataSubClass as loadData
 
 layer_sizes = [784, 300, 300, 10]
 N_layers = len(layer_sizes) - 1
@@ -34,8 +35,12 @@ log_init_scale = -3.0
 
 def run():
     RS = RandomState((seed, "top_rs"))
-    all_data = mnist.load_data_as_dict()
-    train_data, tests_data = random_partition(all_data, RS, [N_train, N_tests])
+    all_data =  loadData.loadMnist()
+    train_data, tests_data = loadData.load_data_as_dict(all_data, 10)
+    train_data = random_partition(train_data, RS, [N_train]).__getitem__(0)
+    tests_data = random_partition(tests_data, RS, [ N_tests]).__getitem__(0)
+    print "training samples {0}: testing samples: {1}".format(N_train,N_tests)
+
     w_parser, pred_fun, loss_fun, frac_err = make_nn_funs(layer_sizes)
     N_weights = w_parser.vect.size
 
@@ -187,7 +192,7 @@ class Logger(object):
         self.log.write(message)
 
 def genoutput(path):
-    sys.stdout = Logger(path+"outputServerMNIST.txt")
+    sys.stdout = Logger(path+"outputInitialMNIST.txt")
 
 if __name__ == '__main__':
     import time
