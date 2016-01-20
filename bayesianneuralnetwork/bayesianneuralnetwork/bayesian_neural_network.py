@@ -16,7 +16,7 @@ class GPRegression(BNN):
 
     """
 
-    def __init__(self, X, Y):
+    def __init__(self, X, Y,layer_sizes,L2_reg):
 
-        super(BNN, self).__init__(X, Y)
+        super(BNN, self).__init__(X, Y,layer_sizes,L2_reg)
 
