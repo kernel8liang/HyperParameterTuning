@@ -85,15 +85,22 @@ def loadSubsetData(data, RS, subset_sizes, clientNum):
     countPre = 0
     for i in range (0,clientNum):
 
-        Count = (i*subset_sizes)/N_rows
-        if Count> countPre:
-            data = dictslice(data, RS.permutation(N_rows))
-            countPre = Count
+        # Count = (i*subset_sizes)/N_rows
+        # if Count> countPre:
+        #     data = dictslice(data, RS.permutation(N_rows))
+        #     countPre = Count
         startNum = (i*subset_sizes)%N_rows
+        print ("current startNum " +str(startNum))
         if (startNum+subset_sizes) > N_rows:
             idxs = slice(startNum, N_rows)
-            idxs1 = slice(0, (N_rows-startNum))
-            subset = list(itertools.chain(*zip(dictslice(data, idxs), dictslice(data,idxs1))))
+            idxs1 = slice(0, (startNum+subset_sizes-N_rows))
+            part1 = dictslice(data, idxs)
+            part2 = dictslice(data,idxs1)
+            subset = part1
+
+            subset['X']=list(itertools.chain(*zip(part1['X'] , part2['X'])))
+            subset['T']=list(itertools.chain(*zip(part1['T'] ,part2['T'])))
+
         else:
             idxs = slice(startNum, startNum + subset_sizes)
             subset = dictslice(data, idxs)
@@ -136,10 +143,10 @@ def loadCifar10():
 
 if __name__=="__main__":
 
-
-
-    data = loadCifar10()
-    data_train, label_train, data_test, label_test = data
+    from hypergrad.mnist import random_partition
+    #
+    # data = loadCifar10()
+    # data_train, label_train, data_test, label_test = data
     # print("complete loading the file ")
     # d = {}
     # for i in xrange(11):
@@ -164,8 +171,17 @@ if __name__=="__main__":
     #     cPickle.dump(label_test, f)
     # print("end saving of the file ")
     #
-    all_data = load_data_as_dict(data, 10, subClassIndexList=[1,2,3,4])
+    # all_data = load_data_as_dict(data, 10, subClassIndexList=[1,2,3,4])
     from hypergrad.util import RandomState
     RS = RandomState((0, "to p_rs"))
-    all_data=  loadSubsetData(data, RS, 2000, 10)
+    data = loadCifar10()
+
+    train_data_subclass = []
+
+    train_data, tests_data = load_data_as_dict(data, 10)
+    train_data = random_partition(train_data, RS, [50000]).__getitem__(0)
+
+
+    train_data_subclass= loadSubsetData(train_data,RS, 20000, 5)
+
     all_data = load_data_as_dict(data, 10, subClassIndexList=[1,2,3,4])
