@@ -14,23 +14,43 @@ from hypergrad.util import RandomState, dictslice, dictmap
 from hypergrad.odyssey import omap
 import loaddataSubClass as loadData
 
-layer_sizes = [784, 300, 300, 10]
+
+layer_sizes = [784, 50, 50, 50, 10]
 N_layers = len(layer_sizes) - 1
 batch_size = 50
-N_iters = 5000
-N_train = 50000
-N_valid = 5000
-N_tests = 5000
+N_iters = 2000    # 5000
+N_train = 10000
+N_valid = 3000
+N_tests = 3000
 
 all_N_meta_iter = [0, 0, 20]
-alpha = 0.01
-meta_alpha = 0.2
+alpha = 0.05  #0.1
+meta_alpha = 0.1
 beta = 0.1
 seed = 0
 N_thin = 500
 N_meta_thin = 1
 log_L2 = -4.0
 log_init_scale = -3.0
+
+
+# layer_sizes = [784, 300, 300, 10]
+# N_layers = len(layer_sizes) - 1
+# batch_size = 50
+# N_iters = 5000
+# N_train = 50000
+# N_valid = 5000
+# N_tests = 5000
+#
+# all_N_meta_iter = [0, 0, 20]
+# alpha = 0.01
+# meta_alpha = 0.2
+# beta = 0.1
+# seed = 0
+# N_thin = 500
+# N_meta_thin = 1
+# log_L2 = -4.0
+# log_init_scale = -3.0
 
 
 def run():
@@ -192,7 +212,7 @@ class Logger(object):
         self.log.write(message)
 
 def genoutput(path):
-    sys.stdout = Logger(path+"outputInitialMNIST.txt")
+    sys.stdout = Logger(path+"outputInitialMNIST_5000Ite.txt")
 
 if __name__ == '__main__':
     import time
