@@ -2,20 +2,17 @@
 # feb-5 5
 import os
 import pickle
-
-import numpy as np
-
-import loaddataSubClass as loadData
-from funkyyak import grad, getval
-from loaddataSubClass import loadSubsetData
-from hypergrad.mnist import random_partition
-from hypergrad.nn_utils import make_nn_funs
-from hypergrad.optimizers import sgd_meta_only as sgd
-from hypergrad.util import RandomState, dictslice
-
 import sys
 
+import loaddataSubClass as loadData
+import numpy as np
+from loaddataSubClass import loadSubsetData
 
+from funkyyak import grad, getval
+from hypergrad import RandomState, dictslice
+from hypergrad import make_nn_funs
+from hypergrad import random_partition
+from hypergrad import sgd_meta_only as sgd
 
 classNum = 10
 SubclassNum = 10
@@ -272,8 +269,6 @@ def plot():
     plt.savefig('bottom_layer_filter.png')
 
 
-
-from spearmint import spearmint_pb2
 if __name__ == '__main__':
     # params = []
     # param = spearmint_pb2.Parameter()

@@ -66,11 +66,13 @@ class BNN():
 
         self.X = X.copy()
         self.Y = Y
+        self.num_data, self.input_dim = self.X.shape
         self.layer_sizes = layer_sizes
         rbf = lambda x: norm.pdf(x, 0, 1)
         self.nonlinearity= rbf
         self.sq = lambda x: np.sin(x)
         noise_variance = 0.01
+        self.L2_reg =L2_reg
         self.num_weights, self.predictions, self.logprob = \
             self.make_nn_funs(layer_sizes, L2_reg, noise_variance ,self.nonlinearity )
 
@@ -188,7 +190,7 @@ class BNN():
     def optimize(self):
         print("Optimizing variational parameters...")
         self.init_var_params = adam(self.gradient, self.init_var_params,
-                                  step_size=0.1, num_iters=1000, callback=self.callback)
+                                  step_size=0.1, num_iters=1, callback=self.callback)
 
 
     def optimize_restarts(self, num_restarts=10, robust=False, verbose=True):
@@ -196,7 +198,7 @@ class BNN():
 
         for i in range(num_restarts):
             self.init_var_params = adam(self.gradient, self.init_var_params,
-                                  step_size=0.1, num_iters=1000, callback=self.callback)
+                                  step_size=0.1, num_iters=1, callback=self.callback)
             # try:
             #     if not parallel:
             #         if i>0: self.randomize()
