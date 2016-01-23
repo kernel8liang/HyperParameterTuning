@@ -38,7 +38,12 @@ def black_box_variational_inference(logprob, D, num_samples):
     def variational_objective(params, t):
         """Provides a stochastic estimate of the variational lower bound."""
         mean, log_std = unpack_params(params)
-        samples = rs.randn(num_samples, D) * np.exp(log_std) + mean
+        generatedSample=rs.randn(num_samples, D) * np.exp(log_std)
+        samples = generatedSample + mean
+        #samples: sample of weights
+        #t: targets
+        #inputs used in logprob is the inputs user initial generated
+        logvalue = logprob(samples, t)
         lower_bound = gaussian_entropy(log_std) + np.mean(logprob(samples, t))
         loss = np.mean(logprob(samples, t))
         print("loss is "+ str(loss))
@@ -94,7 +99,7 @@ def build_toy_dataset(n_data=40, noise_std=0.1):
     inputs1  = inputs.reshape((len(inputs), D))
     imputfull =  np.concatenate((inputs , inputs1),axis=1)
     targets = targets.reshape((len(targets), D))
-    return imputfull, targets
+    return inputs, targets
 
 
 
@@ -118,7 +123,7 @@ if __name__ == '__main__':
     rbf = lambda x: norm.pdf(x, 0, 1)
     sq = lambda x: np.sin(x)
     num_weights, predictions, logprob = \
-        make_nn_funs(layer_sizes=[2, 10, 10, 1], L2_reg=0.01,
+        make_nn_funs(layer_sizes=[1, 10, 10, 1], L2_reg=0.01,
                      noise_variance = 0.01, nonlinearity=rbf)
 
     inputs, targets = build_toy_dataset()
@@ -141,8 +146,8 @@ if __name__ == '__main__':
         print("Iteration {} lower bound {}".format(t, lower))
 
         # Sample functions from posterior.
-        rs = npr.RandomState(0)
-        mean, log_std = unpack_params(params)
+        # rs = npr.RandomState(0)
+        # mean, log_std = unpack_params(params)
         # #rs = npr.RandomState(0)
         # sample_weights = rs.randn(10, num_weights) * np.exp(log_std) + mean
         # plot_inputs = np.linspace(-8, 8, num=400)

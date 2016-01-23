@@ -10,7 +10,8 @@ import autogradwithbay.scipy.stats.norm as norm
 from autogradwithbay import grad
 from autogradwithbay.examples.optimizers import adam
 import sys
-from bayesianneuralnetwork import bayesian_neural_network
+from bayesianneuralnetwork.bayesian_neural_network import bayesian_neural_network
+from bayesianneuralnetwork.bnn import BNN
 
 
 def build_toy_dataset(n_data=40, noise_std=0.1):
@@ -25,4 +26,9 @@ def build_toy_dataset(n_data=40, noise_std=0.1):
     return inputs, targets
 
 inputs, targets = build_toy_dataset()
-model=bayesian_neural_network(inputs,targets, layer_sizes =[1, 10, 10, 1],L2_reg=0.01)
+model=BNN(inputs,targets, layer_sizes=[1, 10, 10, 1],L2_reg=0.01)
+predictresult = model.predict(inputs)
+predictresult=predictresult
+model.optimize()
+predictresult = model.predict(inputs)
+predictresult=predictresult

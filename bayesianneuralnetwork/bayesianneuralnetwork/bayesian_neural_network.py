@@ -1,7 +1,7 @@
 import numpy as np
 from bnn import BNN
 
-class GPRegression(BNN):
+class bayesian_neural_network(BNN):
     """
     Gaussian Process model for regression
 
@@ -18,5 +18,5 @@ class GPRegression(BNN):
 
     def __init__(self, X, Y,layer_sizes,L2_reg):
 
-        super(BNN, self).__init__(X, Y,layer_sizes,L2_reg)
+        super(bayesian_neural_network, self).__init__(X, Y,layer_sizes,L2_reg)
 

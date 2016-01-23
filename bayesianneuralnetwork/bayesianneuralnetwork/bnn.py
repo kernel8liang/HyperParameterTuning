@@ -66,12 +66,13 @@ class BNN():
 
         self.X = X.copy()
         self.Y = Y
-        self.layer_size = layer_sizes
-        self.rbf = lambda x: norm.pdf(x, 0, 1)
+        self.layer_sizes = layer_sizes
+        rbf = lambda x: norm.pdf(x, 0, 1)
+        self.nonlinearity= rbf
         self.sq = lambda x: np.sin(x)
+        noise_variance = 0.01
         self.num_weights, self.predictions, self.logprob = \
-            self.make_nn_funs(layer_sizes=[2, 10, 10, 1], L2_reg=0.01,
-                              noise_variance = 0.01, nonlinearity=self.rbf )
+            self.make_nn_funs(layer_sizes, L2_reg, noise_variance ,self.nonlinearity )
 
 
         self.log_posterior = lambda weights, t: self.logprob(weights, X, Y)
@@ -85,45 +86,19 @@ class BNN():
         init_mean    = self.rs.randn(self.num_weights)
         init_log_std = -5 * np.ones(self.num_weights)
         self.init_var_params = np.concatenate([init_mean, init_log_std])
+        self.num_samples=20
+
+        # variables used for running optimization process
+        self.optimization_runs = []
+        self.model_optimize_restarts=20
+        self.verbosity= True
+
 
 
 
 
     def set_XY(self, X=None, Y=None):
-        """
-        # Set the input / output data of the model
-        # This is useful if we wish to change our existing data but maintain the same model
-        #
-        # :param X: input observations
-        # :type X: np.ndarray
-        # :param Y: output observations
-        # :type Y: np.ndarray
-        # """
-        # self.update_model(False)
-        # if Y is not None:
-        #     if self.normalizer is not None:
-        #         self.normalizer.scale_by(Y)
-        #         self.Y_normalized = ObsAr(self.normalizer.normalize(Y))
-        #         self.Y = Y
-        #     else:
-        #         self.Y = ObsAr(Y)
-        #         self.Y_normalized = self.Y
-        # if X is not None:
-        #     if self.X in self.parameters:
-        #         # LVM models
-        #         if isinstance(self.X, VariationalPosterior):
-        #             assert isinstance(X, type(self.X)), "The given X must have the same type as the X in the model!"
-        #             self.unlink_parameter(self.X)
-        #             self.X = X
-        #             self.link_parameter(self.X)
-        #         else:
-        #             self.unlink_parameter(self.X)
-        #             from ..core import Param
-        #             self.X = Param('latent mean',X)
-        #             self.link_parameter(self.X)
-        #     else:
-        #         self.X = ObsAr(X)
-        # self.update_model(True)
+
         self.X = X
         self.Y = Y
 
@@ -172,24 +147,28 @@ class BNN():
 
         return variational_objective, gradient, unpack_params
 
-    def make_nn_funs(layer_sizes, L2_reg, noise_variance, nonlinearity=np.tanh):
+    def unpack_layers(self,weights):
+        shapes = zip(self.layer_sizes[:-1], self.layer_sizes[1:])
+        num_weight_sets = len(weights)
+        for m, n in shapes:
+            yield weights[:, :m*n]     .reshape((num_weight_sets, m, n)),\
+                  weights[:, m*n:m*n+n].reshape((num_weight_sets, 1, n))
+            weights = weights[:, (m+1)*n:]
+
+    def make_nn_funs(self,layer_sizes, L2_reg, noise_variance, nonlinearity=np.tanh):
         """These functions implement a standard multi-layer perceptron,
         vectorized over both training examples and weight samples."""
+
         shapes = zip(layer_sizes[:-1], layer_sizes[1:])
         num_weights = sum((m+1)*n for m, n in shapes)
 
-        def unpack_layers(weights):
-            num_weight_sets = len(weights)
-            for m, n in shapes:
-                yield weights[:, :m*n]     .reshape((num_weight_sets, m, n)),\
-                      weights[:, m*n:m*n+n].reshape((num_weight_sets, 1, n))
-                weights = weights[:, (m+1)*n:]
+
 
         def predictions(weights, inputs):
             """weights is shape (num_weight_samples x num_weights)
                inputs  is shape (num_datapoints x D)"""
             inputs = np.expand_dims(inputs, 0)
-            for W, b in unpack_layers(weights):
+            for W, b in self.unpack_layers(weights):
                 outputs = np.einsum('mnd,mdo->mno', inputs, W) + b
                 inputs = nonlinearity(outputs)
             return outputs
@@ -208,5 +187,52 @@ class BNN():
 
     def optimize(self):
         print("Optimizing variational parameters...")
-        variational_params = adam(self.gradient, self.init_var_params,
+        self.init_var_params = adam(self.gradient, self.init_var_params,
                                   step_size=0.1, num_iters=1000, callback=self.callback)
+
+
+    def optimize_restarts(self, num_restarts=10, robust=False, verbose=True):
+        print("Optimizing variational parameters...")
+
+        for i in range(num_restarts):
+            self.init_var_params = adam(self.gradient, self.init_var_params,
+                                  step_size=0.1, num_iters=1000, callback=self.callback)
+            # try:
+            #     if not parallel:
+            #         if i>0: self.randomize()
+            #         self.optimize(**kwargs)
+            #     else:
+            #         self.optimization_runs.append(jobs[i].get())
+            #
+            #     if verbose:
+            #         print(("Optimization restart {0}/{1}, f = {2}".format(i + 1, num_restarts, self.optimization_runs[-1].f_opt)))
+            # except Exception as e:
+            #     if robust:
+            #         print(("Warning - optimization restart {0}/{1} failed".format(i + 1, num_restarts)))
+            #     else:
+            #         raise e
+
+
+    def predict(self, Xnew):
+        """weights is shape (num_weight_samples x num_weights)
+           inputs  is shape (num_datapoints x D)"""
+        shapes = zip(self.layer_sizes[:-1], self.layer_sizes[1:])
+        num_weights = sum((m+1)*n for m, n in shapes)
+
+
+        inputs = np.expand_dims(Xnew, 0)
+        # inputs = Xnew
+        mean, log_std = self.unpack_params(self.init_var_params)
+        rs = npr.RandomState(0)
+        samples = rs.randn(self.num_samples, self.num_weights) * np.exp(log_std) + mean
+        for W, b in self.unpack_layers(samples):
+            # dotvalue = np.dot(inputs, W)
+            # outputs = dotvalue+ b
+            outputs = np.einsum('mnd,mdo->mno', inputs, W) + b
+            inputs = self.nonlinearity(outputs)
+
+        mean = np.mean(outputs, axis=0)
+        variance= outputs.var(axis=0)
+
+        return mean,variance
+
