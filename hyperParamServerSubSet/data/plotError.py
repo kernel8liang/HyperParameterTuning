@@ -8,15 +8,18 @@ import os
 
 
 def resultFile(fname):
-    resultFile = os.path.expanduser('~/Desktop/hyper_parameter_tuning/hyperParamServerSubClass/data')
+    resultFile = os.path.expanduser('~/Desktop/hyper_parameter_tuning/hyperParamServerSubSet/data')
     return os.path.join(resultFile, fname)
 
 def plotResultFile():
 
     index = 1
 
-    outputPath_part_final = resultFile("resultSheet.csv")
-    output_plot =  resultFile("result_mnist.pdf")
+    # outputPath_part_final = resultFile("resultSheet.csv")
+    # output_plot =  resultFile("result.pdf")
+
+    outputPath_part_final = "resultSheet.csv"
+    output_plot = "result.pdf"
 
     # df = pd.read_csv(outputPath_part_final,delimiter='\t')
     df = pd.read_csv(outputPath_part_final, error_bad_lines=False)
