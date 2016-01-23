@@ -62,7 +62,7 @@ class BNN():
 
 
 
-    def __init__(self, X, Y,layer_sizes, L2_reg):
+    def __init__(self, X, Y,layer_sizes, L2_reg, model_optimize_restarts=1):
 
         self.X = X.copy()
         self.Y = Y
@@ -90,7 +90,7 @@ class BNN():
 
         # variables used for running optimization process
         self.optimization_runs = []
-        self.model_optimize_restarts=20
+        self.model_optimize_restarts=model_optimize_restarts
         self.verbosity= True
 
 
@@ -236,3 +236,5 @@ class BNN():
 
         return mean,variance
 
+    def copy(self):
+        return self
