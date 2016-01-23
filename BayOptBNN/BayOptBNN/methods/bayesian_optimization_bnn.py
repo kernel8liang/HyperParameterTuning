@@ -2,20 +2,19 @@
 # Copyright (c) 2015, the GPy Authors (see GPy AUTHORS.txt)
 # Licensed under the BSD 3-clause license (see LICENSE.txt)
 
-import GPy
 import numpy as np
 from ..core.acquisition import AcquisitionEI, AcquisitionMPI, AcquisitionLCB, AcquisitionEL
 from ..core.bo import BO
 from ..util.general import samples_multidimensional_uniform, reshape
 from ..util.stats import initial_design
 import warnings
-from bayesianneuralnetwork import bayesian_neural_network
+from bayesianneuralnetwork.bnn import BNN
 warnings.filterwarnings("ignore")
 
 
-class BayesianOptimization(BO):
+class BayesianOptimizationBNN(BO):
     def __init__(self, f, bounds=None,  X=None, Y=None, numdata_initial_design = None,type_initial_design='random', model_optimize_interval=1, acquisition='EI',
-        acquisition_par= 0.00, model_optimize_restarts=10, num_inducing=None, normalize=False,BNN=True,
+        acquisition_par= 0.00, model_optimize_restarts=10, num_inducing=None, normalize=False,BNN=True,layer_sizes =[1, 10, 10, 1],L2_reg=0.01,
         exact_feval=False, verbosity=0):
         '''
         Bayesian Optimization using EI, MPI and LCB (or UCB) acquisition functions.
@@ -44,6 +43,8 @@ class BayesianOptimization(BO):
         # ------- Get default values
         self.num_inducing = num_inducing
         self.BNN = BNN
+        self.layer_sizes=layer_sizes
+        self.L2_reg= L2_reg
         self.input_dim = len(bounds)
         self.normalize = normalize
         self.exact_feval = exact_feval
@@ -111,7 +112,7 @@ class BayesianOptimization(BO):
         else:
             print 'The selected acquisition function is not valid. Please try again with EI, MPI, or LCB'
         if (acquisition=='EI' or acquisition=='MPI' or acquisition =='LCB' or acquisition =='EL' ):
-            super(BayesianOptimization ,self).__init__(acquisition_func=acq)
+            super(BayesianOptimizationBNN ,self).__init__(acquisition_func=acq)
 
 
     def _init_model(self):
@@ -137,4 +138,5 @@ class BayesianOptimization(BO):
         #     self.model.Gaussian_noise.constrain_bounded(1e-6,1e6, warning=False) #to avoid numerical problems
         if self.BNN==True:
 
-            self.model=bayesian_neural_network(self.X,self.Y, layer_sizes =[1, 10, 10, 1],L2_reg=0.01)
+            self.model=BNN(self.X,self.Y, layer_sizes =[1, 10, 10, 1],L2_reg=0.01)
+

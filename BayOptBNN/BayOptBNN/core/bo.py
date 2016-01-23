@@ -5,7 +5,8 @@
 import numpy as np
 import time
 from ..util.general import best_value, reshape, spawn
-from ..core.optimization import lp_batch_optimization, random_batch_optimization, predictive_batch_optimization
+# from ..core.optimization import lp_batch_optimization, random_batch_optimization, predictive_batch_optimization
+from ..core.optimization import predictive_batch_optimization
 try:
     from ..plotting.plots_bo import plot_acquisition, plot_convergence
 except:
@@ -186,10 +187,10 @@ class BO(object):
         # ------ Selection of the batch method (if any, predictive used when n_inbathc=1)
         if self.batch_method == 'predictive':
             X_batch = predictive_batch_optimization(acqu_name, acquisition_par, acquisition, d_acquisition, bounds, acqu_optimize_restarts, acqu_optimize_method, model, n_inbatch)            
-        elif self.batch_method == 'lp':
-            X_batch = lp_batch_optimization(self.acquisition_func, bounds, acqu_optimize_restarts, acqu_optimize_method, model, n_inbatch)
-        elif self.batch_method == 'random':
-            X_batch = random_batch_optimization(acquisition, d_acquisition, bounds, acqu_optimize_restarts,acqu_optimize_method, model, n_inbatch)        
+        # elif self.batch_method == 'lp':
+        #     X_batch = lp_batch_optimization(self.acquisition_func, bounds, acqu_optimize_restarts, acqu_optimize_method, model, n_inbatch)
+        # elif self.batch_method == 'random':
+        #     X_batch = random_batch_optimization(acquisition, d_acquisition, bounds, acqu_optimize_restarts,acqu_optimize_method, model, n_inbatch)
         return X_batch
 
 

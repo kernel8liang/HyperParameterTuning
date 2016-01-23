@@ -4,7 +4,7 @@
 
 import numpy as np
 import scipy
-import GPyOpt
+import BayOptBNN
 from ..util.general import multigrid, samples_multidimensional_uniform, reshape
 from scipy.stats import norm
 import numpy as np
@@ -31,7 +31,8 @@ def predictive_batch_optimization(acqu_name, acquisition_par, acquisition, d_acq
     X = model_copy.X 
     Y = model_copy.Y
     input_dim = X.shape[1] 
-    kernel = model_copy.kern    
+    layer_sizes = model_copy.layer_sizes
+    L2_reg = model_copy.L2_reg
 
     # Optimization of the first element in the batch
     X_new = optimize_acquisition(acquisition, d_acquisition, bounds, acqu_optimize_restarts, acqu_optimize_method, model, X_batch=None, L=None, Min=None)
@@ -42,13 +43,15 @@ def predictive_batch_optimization(acqu_name, acquisition_par, acquisition, d_acq
         Y = np.vstack((Y,model.predict(reshape(X_new, input_dim))[0]))
        
         try: # this exception is included in case two equal points are selected in a batch, in this case the method stops
-            batchBO = GPyOpt.methods.BayesianOptimization(f=0, 
+            batchBO = BayOptBNN.methods.BayesianOptimization(f=0,
                                         bounds= bounds, 
                                         X=X, 
                                         Y=Y, 
-                                        kernel = kernel,
+                                        layer_sizes =layer_sizes,
+                                        L2_reg=L2_reg,
                                         acquisition = acqu_name, 
                                         acquisition_par = acquisition_par)
+
         except np.linalg.linalg.LinAlgError:
             print 'Optimization stopped. Two equal points selected.'
             break        
@@ -64,69 +67,6 @@ def predictive_batch_optimization(acqu_name, acquisition_par, acquisition, d_acq
         k+=1    
     return X_batch
 
-
-## ---- Random batch optimization
-def random_batch_optimization(acquisition, d_acquisition, bounds, acqu_optimize_restarts, acqu_optimize_method, model, n_inbatch):
-    '''
-    Computes the batch optimization taking random samples (only for comparative purposes)
-
-    :param acquisition: acquisition function in which the batch selection is based
-    :param d_acquisition: gradient of the acquisition
-    :param bounds: the box constrains of the optimization
-    :param acqu_optimize_restarts: the number of restarts in the optimization of the surrogate
-    :param acqu_optimize_method: the method to optimize the acquisition function
-    :param model: the GP model based on the current samples
-    :param n_inbatch: the number of samples to collect
-    '''
-
-    # Optimization of the first element in the batch
-    X_batch = optimize_acquisition(acquisition, d_acquisition, bounds, acqu_optimize_restarts, acqu_optimize_method, model)
-
-    k=1 
-    while k<n_inbatch:
-        new_sample = samples_multidimensional_uniform(bounds,1)
-        X_batch = np.vstack((X_batch,new_sample))  
-        k +=1
-    return X_batch
-
-
-## ---- Local penalization for batch optimization
-def lp_batch_optimization(acquisition, bounds, acqu_optimize_restarts, acqu_optimize_method, model, n_inbatch):
-    '''
-    Computes batch optimization using by acquisition penalization using Lipschitz inference.
-
-    :param acquisition: acquisition function in which the batch selection is based
-    :param d_acquisition: gradient of the acquisition
-    :param bounds: the box constrains of the optimization
-    :param acqu_optimize_restarts: the number of restarts in the optimization of the surrogate
-    :param acqu_optimize_method: the method to optimize the acquisition function
-    :param model: the GP model based on the current samples
-    :param n_inbatch: the number of samples to collect
-    '''
-    from .acquisition import AcquisitionMP
-    assert isinstance(acquisition, AcquisitionMP)
-    acq_func = acquisition.acquisition_function
-    d_acq_func = acquisition.d_acquisition_function
-
-    acquisition.update_batches(None,None,None)    
-    # Optimize the first element in the batch
-    X_batch = optimize_acquisition(acq_func, d_acq_func, bounds, acqu_optimize_restarts, acqu_optimize_method, model, X_batch=None, L=None, Min=None)
-    k=1
-    #d_acq_func = None  # gradients are approximated  with the batch. 
-    
-    if n_inbatch>1:
-        # ---------- Approximate the constants of the the method
-        L = estimate_L(model,bounds)
-        Min = estimate_Min(model,bounds)
-
-    while k<n_inbatch:
-        acquisition.update_batches(X_batch,L,Min)
-        # ---------- Collect the batch (the gradients of the acquisition are approximated for k =2,...,n_inbatch)
-        new_sample = optimize_acquisition(acq_func, d_acq_func, bounds, acqu_optimize_restarts, acqu_optimize_method, model, X_batch, L, Min)
-        X_batch = np.vstack((X_batch,new_sample))
-        k +=1
-    acquisition.update_batches(None,None,None)
-    return X_batch
 
 def optimize_acquisition(acquisition, d_acquisition, bounds, acqu_optimize_restarts, acqu_optimize_method, model, X_batch=None, L=None, Min=None):
     '''

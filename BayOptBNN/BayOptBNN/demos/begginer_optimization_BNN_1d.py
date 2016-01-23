@@ -24,17 +24,18 @@ BO_demo_1d.x_opt
 """
 
 def begginer_optimization_1d(plots=True):
-    import GPyOpt
+
+    import BayOptBNN
     from numpy.random import seed
     seed(1234)
     
     # --- Objective function
-    objective_true  = GPyOpt.fmodels.experiments1d.forrester()              # true function
-    objective_noisy = GPyOpt.fmodels.experiments1d.forrester(sd= .25)       # noisy version
+    objective_true  = BayOptBNN.fmodels.experiments1d.forrester()              # true function
+    objective_noisy = BayOptBNN.fmodels.experiments1d.forrester(sd= .25)       # noisy version
     bounds = [(0,1)]                                                        # problem constrains 
 
     # --- Problem definition and optimization
-    BO_demo_1d = GPyOpt.methods.BayesianOptimization(f=objective_noisy.f,   # function to optimize       
+    BO_demo_1d = BayOptBNN.methods.BayesianOptimizationBNN(f=objective_noisy.f,   # function to optimize
                                                     bounds=bounds,          # box-constrains of the problem
                                                     acquisition='EI')       # Selects the Expected improvement
     # Run the optimization for 15 iterations
@@ -50,11 +51,11 @@ def begginer_optimization_1d(plots=True):
                             
 
     # --- Plots
-    if plots:
-        objective_true.plot()
-        BO_demo_1d.plot_acquisition()
-        BO_demo_1d.plot_convergence()
-    BO_demo_1d.save_report()
+    # if plots:
+    #     objective_true.plot()
+    #     BO_demo_1d.plot_acquisition()
+    #     BO_demo_1d.plot_convergence()
+    # BO_demo_1d.save_report()
         
     return BO_demo_1d
 

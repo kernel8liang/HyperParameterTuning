@@ -2,7 +2,7 @@
 # Licensed under the BSD 3-clause license (see LICENSE.txt)
 
 import time
-from ..methods import BayesianOptimization
+from ..methods import BayesianOptimizationBNN
 
 class BODriver(object):
     """
@@ -53,10 +53,10 @@ class BODriver(object):
         iters = 0
         offset = 0
     
-        bo = BayesianOptimization(obj_func, bounds=bounds, X= xs_init, Y=ys_init, 
+        bo = BayesianOptimizationBNN(obj_func, bounds=bounds, X= xs_init, Y=ys_init,
                                                  numdata_initial_design = m_c['initial-points'],type_initial_design= m_c['design-initial-points'],
                                                  model_optimize_interval=m_c['optimization-interval'],model_optimize_restarts=m_c['optimization-restarts'],
-                                                 sparseGP=True if m_c['type'].lower()=='sparsegp' else False, num_inducing=m_c['inducing-points'],
+                                                 num_inducing=m_c['inducing-points'],
                                                  acquisition=a_c['type'], acquisition_par = a_c['parameter'],normalize=m_c['normalized-evaluations'],
                                                  exact_feval=True if self.config['likelihood'].lower()=="noiseless" else False, verbosity=o_c['verbosity'])
         X, Y = bo.get_evaluations()
