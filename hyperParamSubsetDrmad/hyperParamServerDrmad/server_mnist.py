@@ -39,9 +39,9 @@ import loaddataSubClass as loadData
 layer_sizes = [784, 50,50,50, 10]
 N_layers = len(layer_sizes) - 1
 batch_size = 50
-N_iters = 5000
-N_train_Full = 50000
-N_train = 20000
+N_iters = 8000
+N_train_Full = 30000
+N_train = 12000
 N_valid = 5000
 N_tests = 5000
 
