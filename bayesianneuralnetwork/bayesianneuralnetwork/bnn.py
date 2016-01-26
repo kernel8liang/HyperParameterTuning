@@ -27,6 +27,7 @@ import autogradwithbay.scipy.stats.norm as norm
 
 from autogradwithbay import grad
 from autogradwithbay.examples.optimizers import adam
+from funkyyak import grad as gradCore
 import sys
 
 
@@ -88,6 +89,8 @@ class BNN():
         init_mean    = self.rs.randn(self.num_weights)
         init_log_std = -5 * np.ones(self.num_weights)
         self.init_var_params = np.concatenate([init_mean, init_log_std])
+        self.update_param = np.concatenate([init_mean, init_log_std])
+
         self.num_samples=20
 
         # variables used for running optimization process
@@ -188,17 +191,23 @@ class BNN():
         print("Iteration {} lower bound {}".format(t, lower))
 
     def optimize(self):
-        print("Optimizing variational parameters...")
-        self.init_var_params = adam(self.gradient, self.init_var_params,
+        print("first Optimizing variational parameters...")
+        self.update_param = self.init_var_params.copy()
+        self.update_param = adam(self.gradient, self.update_param,
                                   step_size=0.1, num_iters=1, callback=self.callback)
 
 
     def optimize_restarts(self, num_restarts=10, robust=False, verbose=True):
         print("Optimizing variational parameters...")
 
+        #todo: reset the num_iter, num_iter = 1 for the ease of debug
+        self.update_param = self.init_var_params.copy()
+        print("current param is "+ str(self.init_var_params))
         for i in range(num_restarts):
-            self.init_var_params = adam(self.gradient, self.init_var_params,
+            self.update_param = adam(self.gradient, self.update_param,
                                   step_size=0.1, num_iters=1, callback=self.callback)
+
+        have = 6
             # try:
             #     if not parallel:
             #         if i>0: self.randomize()
@@ -218,13 +227,9 @@ class BNN():
     def predict(self, Xnew):
         """weights is shape (num_weight_samples x num_weights)
            inputs  is shape (num_datapoints x D)"""
-        shapes = zip(self.layer_sizes[:-1], self.layer_sizes[1:])
-        num_weights = sum((m+1)*n for m, n in shapes)
-
-
         inputs = np.expand_dims(Xnew, 0)
         # inputs = Xnew
-        mean, log_std = self.unpack_params(self.init_var_params)
+        mean, log_std = self.unpack_params(self.update_param)
         rs = npr.RandomState(0)
         samples = rs.randn(self.num_samples, self.num_weights) * np.exp(log_std) + mean
         for W, b in self.unpack_layers(samples):
@@ -238,5 +243,201 @@ class BNN():
 
         return mean,variance
 
+
+
+    def predictive_gradients(self,Xnew):
+        #todo, check if the gradient is correct or not
+        """
+        Compute the derivatives of the predicted latent function with respect to X*
+
+        Given a set of points at which to predict X* (size [N*,Q]), compute the
+        derivatives of the mean and variance. Resulting arrays are sized:
+         dmu_dX* -- [N*, Q ,D], where D is the number of output in this GP (usually one).
+
+        Note that this is not the same as computing the mean and variance of the derivative of the function!
+
+         dv_dX*  -- [N*, Q],    (since all outputs have the same variance)
+        :param X: The points at which to get the predictive gradients
+        :type X: np.ndarray (Xnew x self.input_dim)
+        :returns: dmu_dX, dv_dX
+        :rtype: [np.ndarray (N*, Q ,D), np.ndarray (N*,Q) ]
+
+        """
+        # dmu_dX = np.empty((Xnew.shape[0],Xnew.shape[1],self.output_dim))
+        # for i in range(self.output_dim):
+        #     dmu_dX[:,:,i] = self.gradients_X(self.posterior.woodbury_vector[:,i:i+1].T, Xnew, self.X)
+        def meanCal( CurX ):
+
+            #
+            # inputs = np.expand_dims(CurX, 0)
+
+            mean, log_std = self.unpack_params(self.update_param)
+            rs = npr.RandomState(0)
+
+            samples = []
+            samples.append(np.exp(log_std) + mean)
+            samples=np.array(samples)
+            inputnew = []
+            for i in range(0,Xnew.shape[0]):
+                inputs = rs.randn(self.num_samples, 1)+ CurX[i]
+                inputnew.append(inputs)
+            outputnew = []
+            inputnew= np.array(inputnew)
+            inputs= inputnew
+            init = 0
+            for W, b in self.unpack_layers(samples):
+                # dotvalue = np.dot(inputs, W)
+                # outputs = dotvalue+ b
+
+                # for i in range(0,Xnew.shape[0]):
+                #     if init==0:
+                #         outputnew.append(np.einsum('mnd,mdo->mno', inputnew[i], W) + b)
+                #         inputnew[i] = self.nonlinearity(outputnew[i])
+                #     else:
+                #         outputnew[i] =  np.einsum('mnd,mdo->mno', inputnew[i], W) + b
+                #         inputnew[i] = self.nonlinearity(outputnew[i])
+                outputs = np.einsum('mnd,mdo->mno', inputs, W) + b
+                inputs = self.nonlinearity(outputs)
+                init = init+1
+            meanresult = np.mean(inputnew, axis=1)
+            meanresult = np.expand_dims(meanresult, 0)
+            return meanresult
+        hypergrad = grad(meanCal)
+
+        def varCal( CurX ):
+
+
+            inputs = np.expand_dims(CurX, 0)
+
+            mean, log_std = self.unpack_params(self.update_param)
+            rs = npr.RandomState(0)
+
+            samples = []
+            samples.append(np.exp(log_std) + mean)
+            samples=np.array(samples)
+            inputs = rs.randn(self.num_samples, 1)+ inputs
+            for W, b in self.unpack_layers(samples):
+                # dotvalue = np.dot(inputs, W)
+                # outputs = dotvalue+ b
+                outputs = np.einsum('mnd,mdo->mno', inputs, W) + b
+                inputs = self.nonlinearity(outputs)
+            variance= outputs.var(axis=1)
+            return variance
+        hypergrad1 = grad(varCal)
+
+        mean1, var1 = self.predict(Xnew)
+        mean = np.expand_dims(hypergrad(Xnew),0)
+        var = hypergrad1(Xnew)
+        return mean, var
+
+
+
+
+    def gradients_X(self, dL_dK, X, X2):
+        """
+        .. math::
+
+            \\frac{\partial L}{\partial X} = \\frac{\partial L}{\partial K}\\frac{\partial K}{\partial X}
+        """
+        raise NotImplementedError
+
     def copy(self):
         return self
+
+
+    # # def meanVar(self):
+    # #
+    # #
+    # #     return hypergrad
+    # # def varVar(self):
+    # #
+    # #
+    # #     return hypergrad
+    # def _inv_dist(self, X, X2=None):
+    #     """
+    #     Compute the elementwise inverse of the distance matrix, expecpt on the
+    #     diagonal, where we return zero (the distance on the diagonal is zero).
+    #     This term appears in derviatives.
+    #     """
+    #     dist = self._scaled_dist(X, X2).copy()
+    #     return 1./np.where(dist != 0., dist, np.inf)
+    #
+    # def gradients_X(self, dL_dK, X, X2=None):
+    #     """
+    #     Given the derivative of the objective wrt K (dL_dK), compute the derivative wrt X
+    #     """
+    #     from GPy.util.config import config
+    #     if config.getboolean('cython', 'working'):
+    #         return self._gradients_X_cython(dL_dK, X, X2)
+    #     else:
+    #         return self._gradients_X_pure(dL_dK, X, X2)
+    # def _gradients_X_pure(self, dL_dK, X, X2=None):
+    #     invdist = self._inv_dist(X, X2)
+    #     dL_dr = self.dK_dr_via_X(X, X2) * dL_dK
+    #     tmp = invdist*dL_dr
+    #     if X2 is None:
+    #         tmp = tmp + tmp.T
+    #         X2 = X
+    #
+    #     #The high-memory numpy way:
+    #     #d =  X[:, None, :] - X2[None, :, :]
+    #     #grad = np.sum(tmp[:,:,None]*d,1)/self.lengthscale**2
+    #
+    #     #the lower memory way with a loop
+    #     grad = np.empty(X.shape, dtype=np.float64)
+    #     for q in range(self.input_dim):
+    #         np.sum(tmp*(X[:,q][:,None]-X2[:,q][None,:]), axis=1, out=grad[:,q])
+    #     return grad/self.lengthscale**2
+    #
+    # def _gradients_X_cython(self, dL_dK, X, X2=None):
+    #     from GPy.kern._src import stationary_cython
+    #     invdist = self._inv_dist(X, X2)
+    #     dL_dr = self.dK_dr_via_X(X, X2) * dL_dK
+    #     tmp = invdist*dL_dr
+    #     if X2 is None:
+    #         tmp = tmp + tmp.T
+    #         X2 = X
+    #     X, X2 = np.ascontiguousarray(X), np.ascontiguousarray(X2)
+    #     grad = np.zeros(X.shape)
+    #
+    #     stationary_cython.grad_X(X.shape[0], X.shape[1], X2.shape[0], X, X2, tmp, grad)
+    #     return grad/self.lengthscale**2
+    #
+    # def predictive_gradients(self,Xnew):
+    #     """
+    #     Compute the derivatives of the predicted latent function with respect to X*
+    #
+    #     Given a set of points at which to predict X* (size [N*,Q]), compute the
+    #     derivatives of the mean and variance. Resulting arrays are sized:
+    #      dmu_dX* -- [N*, Q ,D], where D is the number of output in this GP (usually one).
+    #
+    #     Note that this is not the same as computing the mean and variance of the derivative of the function!
+    #
+    #      dv_dX*  -- [N*, Q],    (since all outputs have the same variance)
+    #     :param X: The points at which to get the predictive gradients
+    #     :type X: np.ndarray (Xnew x self.input_dim)
+    #     :returns: dmu_dX, dv_dX
+    #     :rtype: [np.ndarray (N*, Q ,D), np.ndarray (N*,Q) ]
+    #
+    #     """
+    #     dmu_dX = np.empty((Xnew.shape[0],Xnew.shape[1],self.output_dim))
+    #     for i in range(self.output_dim):
+    #         dmu_dX[:,:,i] = self.gradients_X(self.posterior.woodbury_vector[:,i:i+1].T, Xnew, self.X)
+    #
+    #     # gradients wrt the diagonal part k_{xx}
+    #     dv_dX = self.gradients_X(np.eye(Xnew.shape[0]), Xnew)
+    #     #grads wrt 'Schur' part K_{xf}K_{ff}^{-1}K_{fx}
+    #     alpha = -2.*np.dot(self.kern.K(Xnew, self.X),self.posterior.woodbury_inv)
+    #     dv_dX += self.gradients_X(alpha, Xnew, self.X)
+    #     return dmu_dX, dv_dX
+        #
+        #
+        # result = gradCore(self.predict)
+        # mean, variance = self.predict(Xnew)
+        # gradMean =
+        # gradVariance = gradCore(variance)
+        # # dmu_dX = gradCore(mean)
+        # # dv_dX = gradCore(variance)
+        # # return dmu_dX, dv_dX
+        # # getgrad = result(Xnew)
+        # return gradMean

@@ -85,8 +85,10 @@ class BO(object):
         distance_lastX = np.sqrt(sum((self.X[self.X.shape[0]-1,:]-self.X[self.X.shape[0]-2,:])**2))
         
         # --- BO loop: this loop does the hard work.
+        # while k<self.max_iter and distance_lastX > self.eps:
         while k<self.max_iter and distance_lastX > self.eps:
-
+            print 'the maximum iter is '+str(self.max_iter)
+            print 'current optimization start '+str(k)
             # --- Augment X
             self.X = np.vstack((self.X,self.suggested_sample))
             # --- Evaluate *f* in X and augment Y
@@ -136,34 +138,13 @@ class BO(object):
         if k==self.max_iter and distance_lastX > self.eps:
             if verbose: print '   -Maximum number of iterations reached.'
             return 1
-        else: 
+        else:
             if verbose: print '   -Method converged.'
             return 0
 
-    
-    def change_to_sparseGP(self, num_inducing):
-        """
-        Changes standard GP estimation to sparse GP estimation
-	       
-	    :param num_inducing: number of inducing points for sparse-GP modeling
-	     """
-        if self.sparse == True:
-            raise 'Sparse GP is already in use'
-        else:
-            self.num_inducing = num_inducing
-            self.sparse = True
-            self._init_model(self.X,self.Y)
 
-    def change_to_standardGP(self):
-        """
-        Changes sparse GP estimation to standard GP estimation
 
-        """
-        if self.sparse == False:
-            raise 'Sparse GP is already in use'
-        else:
-            self.sparse = False
-            self._init_model(self.X,self.Y)
+
     
         
     def _optimize_acquisition(self):
