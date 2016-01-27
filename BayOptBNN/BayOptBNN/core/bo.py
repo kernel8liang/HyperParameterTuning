@@ -87,6 +87,7 @@ class BO(object):
         # --- BO loop: this loop does the hard work.
         # while k<self.max_iter and distance_lastX > self.eps:
         while k<self.max_iter and distance_lastX > self.eps:
+        # while k<self.max_iter :
             print 'the maximum iter is '+str(self.max_iter)
             print 'current optimization start '+str(k)
             # --- Augment X
@@ -125,7 +126,9 @@ class BO(object):
 
             # --- Update stop conditions
             k +=1
-            distance_lastX = np.sqrt(sum((self.X[self.X.shape[0]-1,:]-self.X[self.X.shape[0]-2,:])**2))     
+            distance_lastX = np.sqrt(sum((self.X[self.X.shape[0]-1,:]-self.X[self.X.shape[0]-2,:])**2))
+            self.plot_acquisition("bnnoutput"+str(k)+".pdf")
+
 
         # --- Stop messages and execution time          
         self.Y_best = best_value(self.Y)
@@ -237,8 +240,7 @@ class BO(object):
             file.write('Problem bounds:             ' + str(self.bounds).strip('[]') +'\n') 
             file.write('Batch size:                 ' + str(self.n_inbatch).strip('[]') +'\n')    
             file.write('Acquisition:                ' + self.acqu_name + '\n')  
-            file.write('Acquisition optimizer:      ' + self.acqu_optimize_method+ '\n')  
-            file.write('Sparse GP:                  ' + str(self.sparseGP).strip('[]') + '\n')  
+            file.write('Acquisition optimizer:      ' + self.acqu_optimize_method+ '\n')
             file.write('---------------------------------' + ' Summary ' + '------------------------------------------\n')
             file.write('Best found minimum:         ' + str(min(self.Y)).strip('[]') +'\n') 
             file.write('Minumum location:           ' + str(self.X[np.argmin(self.Y),:]).strip('[]') +'\n') 

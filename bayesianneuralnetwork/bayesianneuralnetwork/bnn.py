@@ -78,7 +78,7 @@ class BNN():
             self.make_nn_funs(layer_sizes, L2_reg, noise_variance ,self.nonlinearity )
 
 
-        self.log_posterior = lambda weights, t: self.logprob(weights, X, Y)
+        self.log_posterior = lambda weights, t: self.logprob(weights, self.X, self.Y)
 
         # Build variational objective.
         self.objective, self.gradient, self.unpack_params= \
@@ -97,6 +97,7 @@ class BNN():
         self.optimization_runs = []
         self.model_optimize_restarts=model_optimize_restarts
         self.verbosity= True
+        self.reset= True
 
 
 
@@ -188,25 +189,29 @@ class BNN():
 
     def callback(self,params, t, g):
         lower = self.objective(params, t)
-        print("Iteration {} lower bound {}".format(t, lower))
+        if t%499==0:
+            print("Iteration {} lower bound {}".format(t, lower))
 
     def optimize(self):
         print("first Optimizing variational parameters...")
-        self.update_param = self.init_var_params.copy()
+        # self.update_param = self.init_var_params.copy()
         self.update_param = adam(self.gradient, self.update_param,
-                                  step_size=0.1, num_iters=1, callback=self.callback)
+                                  step_size=0.1, num_iters=2000, callback=self.callback)
+        self.reset=False
 
 
-    def optimize_restarts(self, num_restarts=10, robust=False, verbose=True):
+    def optimize_restarts(self, num_restarts=1, robust=False, verbose=True):
         print("Optimizing variational parameters...")
 
         #todo: reset the num_iter, num_iter = 1 for the ease of debug
         self.update_param = self.init_var_params.copy()
+        self.reset= True
         print("current param is "+ str(self.init_var_params))
-        for i in range(num_restarts):
-            self.update_param = adam(self.gradient, self.update_param,
-                                  step_size=0.1, num_iters=1, callback=self.callback)
-
+        # for i in range(num_restarts):
+        #     self.update_param = adam(self.gradient, self.update_param,
+        #                           step_size=0.1, num_iters=1000, callback=self.callback)
+        self.update_param = adam(self.gradient, self.update_param,
+                                  step_size=0.1, num_iters=500, callback=self.callback)
         have = 6
             # try:
             #     if not parallel:
@@ -227,6 +232,8 @@ class BNN():
     def predict(self, Xnew):
         """weights is shape (num_weight_samples x num_weights)
            inputs  is shape (num_datapoints x D)"""
+        # if self.reset== True:
+        #     self.optimize()
         inputs = np.expand_dims(Xnew, 0)
         # inputs = Xnew
         mean, log_std = self.unpack_params(self.update_param)

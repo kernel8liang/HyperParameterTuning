@@ -51,11 +51,11 @@ def begginer_optimization_1d(plots=True):
                             
 
     # --- Plots
-    # if plots:
-    #     objective_true.plot()
-    #     BO_demo_1d.plot_acquisition()
-    #     BO_demo_1d.plot_convergence()
-    # BO_demo_1d.save_report()
+    if plots:
+        objective_true.plot()
+        BO_demo_1d.plot_acquisition("bnn_acquisition_final.pdf")
+        BO_demo_1d.plot_convergence("bnn_covergence_final.pdf")
+    BO_demo_1d.save_report()
         
     return BO_demo_1d
 

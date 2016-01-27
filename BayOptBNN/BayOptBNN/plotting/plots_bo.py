@@ -15,21 +15,25 @@ def plot_acquisition(bounds,input_dim,model,Xdata,Ydata,acquisition_function,sug
       
     # Plots in dimension 1
     if input_dim ==1:
+
         X = np.arange(bounds[0][0], bounds[0][1], 0.001)
+        # X = np.arange(-2, 2, 0.001)
         X = X.reshape(len(X),1)
         acqu = acquisition_function(X)
-        acqu_normalized = (-acqu - min(-acqu))/(max(-acqu - min(-acqu))) # normalize acquisition 
+        acqu_normalized = (-acqu - min(-acqu))/(max(-acqu - min(-acqu))) # normalize acquisition
+        for i in range(2):
+            model.optimize()
         m, v = model.predict(X.reshape(len(X),1))
-        plt.ioff()        
-        plt.figure(figsize=(10,5)) 
+        plt.ioff()
+        plt.figure(figsize=(10,5))
         plt.subplot(2, 1, 1)
         plt.plot(X, m, 'b-', label=u'Posterior mean',lw=2)
         plt.fill(np.concatenate([X, X[::-1]]), \
                 np.concatenate([m - 1.9600 * np.sqrt(v),
                             (m + 1.9600 * np.sqrt(v))[::-1]]), \
-                alpha=.5, fc='b', ec='None', label='95% C. I.') 
+                alpha=.5, fc='b', ec='None', label='95% C. I.')
         plt.plot(X, m-1.96*np.sqrt(v), 'b-', alpha = 0.5)
-        plt.plot(X, m+1.96*np.sqrt(v), 'b-', alpha=0.5)     
+        plt.plot(X, m+1.96*np.sqrt(v), 'b-', alpha=0.5)
         plt.plot(Xdata, Ydata, 'r.', markersize=10, label=u'Observations')
         plt.axvline(x=suggested_sample[len(suggested_sample)-1],color='r')
         plt.title('Model and observations')
@@ -37,10 +41,10 @@ def plot_acquisition(bounds,input_dim,model,Xdata,Ydata,acquisition_function,sug
         plt.xlabel('X')
         plt.legend(loc='upper left')
         plt.xlim(*bounds)
-        grid(True)  
+        grid(True)
         plt.subplot(2, 1, 2)
         plt.axvline(x=suggested_sample[len(suggested_sample)-1],color='r')
-        plt.plot(X,acqu_normalized, 'r-',lw=2) 
+        plt.plot(X,acqu_normalized, 'r-',lw=2)
         plt.xlabel('X')
         plt.ylabel('Acquisition value')
         plt.title('Acquisition function')

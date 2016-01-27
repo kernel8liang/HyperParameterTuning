@@ -4,7 +4,7 @@
 
 import matplotlib.pyplot as plt
 import numpy as np
-
+from pylab import savefig
 
 class function1d:
 	'''
@@ -18,7 +18,8 @@ class function1d:
 		plt.plot(X, Y, lw=2)
 		plt.xlabel('x')
 		plt.ylabel('f(x)')
-		plt.show()
+		# plt.show()
+		savefig("object_true.pdf")
 
 class forrester(function1d):
 	'''
