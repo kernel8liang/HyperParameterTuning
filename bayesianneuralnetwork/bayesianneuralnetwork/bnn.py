@@ -192,26 +192,26 @@ class BNN():
         if t%499==0:
             print("Iteration {} lower bound {}".format(t, lower))
 
-    def optimize(self):
+    def optimize(self,num_meta):
         print("first Optimizing variational parameters...")
         # self.update_param = self.init_var_params.copy()
-        self.update_param = adam(self.gradient, self.update_param,
-                                  step_size=0.1, num_iters=2000, callback=self.callback)
+        for i in range(num_meta):
+            self.update_param = adam(self.gradient, self.update_param,
+                                  step_size=0.1, num_iters=100, callback=self.callback)
         self.reset=False
 
 
-    def optimize_restarts(self, num_restarts=1, robust=False, verbose=True):
+    def optimize_restarts(self, num_restarts=5, robust=False, verbose=True):
         print("Optimizing variational parameters...")
 
         #todo: reset the num_iter, num_iter = 1 for the ease of debug
         self.update_param = self.init_var_params.copy()
         self.reset= True
         print("current param is "+ str(self.init_var_params))
-        # for i in range(num_restarts):
-        #     self.update_param = adam(self.gradient, self.update_param,
-        #                           step_size=0.1, num_iters=1000, callback=self.callback)
-        self.update_param = adam(self.gradient, self.update_param,
-                                  step_size=0.1, num_iters=500, callback=self.callback)
+        for i in range(num_restarts):
+            self.update_param = adam(self.gradient, self.update_param,
+                                  step_size=0.1, num_iters=100, callback=self.callback)
+
         have = 6
             # try:
             #     if not parallel:
@@ -333,9 +333,9 @@ class BNN():
         hypergrad1 = grad(varCal)
 
         mean1, var1 = self.predict(Xnew)
-        mean = np.expand_dims(hypergrad(Xnew),0)
-        var = hypergrad1(Xnew)
-        return mean, var
+        mean_gra = np.expand_dims(hypergrad(Xnew),0)
+        var_gra = hypergrad1(Xnew)
+        return mean_gra, var_gra
 
 
 
