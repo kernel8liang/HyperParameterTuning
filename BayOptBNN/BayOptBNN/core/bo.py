@@ -86,8 +86,8 @@ class BO(object):
         
         # --- BO loop: this loop does the hard work.
         # while k<self.max_iter and distance_lastX > self.eps:
-        while k<self.max_iter and distance_lastX > self.eps:
-        # while k<self.max_iter :
+        # while k<self.max_iter and distance_lastX > self.eps:
+        while k<self.max_iter :
             print 'the maximum iter is '+str(self.max_iter)
             print 'current optimization start '+str(k)
             # --- Augment X

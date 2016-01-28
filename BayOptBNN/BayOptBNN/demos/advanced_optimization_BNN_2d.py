@@ -32,6 +32,7 @@ def advanced_optimization_2d(plots=True):
     # --- Objective function
     objective_true  = BayOptBNN.fmodels.experiments2d.sixhumpcamel()             # true function
     # objective_true.plot()
+    objective_true.plot()
     objective_noisy = BayOptBNN.fmodels.experiments2d.sixhumpcamel(sd = 0.1)     # noisy version
     bounds = objective_noisy.bounds                                           # problem constrains 
     input_dim = len(bounds)
@@ -51,7 +52,7 @@ def advanced_optimization_2d(plots=True):
     
     
     # Run the optimization
-    max_iter = 40
+    max_iter = 70
 
     print '-----'
     print '----- Running demo. It may take a few seconds.'

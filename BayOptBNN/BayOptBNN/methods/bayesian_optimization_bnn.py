@@ -138,5 +138,5 @@ class BayesianOptimizationBNN(BO):
         #     self.model.Gaussian_noise.constrain_bounded(1e-6,1e6, warning=False) #to avoid numerical problems
         if self.BNN==True:
 
-            self.model=BNN(self.X,self.Y, layer_sizes =[1, 10, 10, 1],L2_reg=0.01)
+            self.model=BNN(self.X,self.Y, layer_sizes =self.layer_sizes,L2_reg=0.01)
 

@@ -22,7 +22,7 @@ def plot_acquisition(bounds,input_dim,model,Xdata,Ydata,acquisition_function,sug
         acqu = acquisition_function(X)
         acqu_normalized = (-acqu - min(-acqu))/(max(-acqu - min(-acqu))) # normalize acquisition
         for i in range(2):
-            model.optimize()
+            model.optimize(30)
         m, v = model.predict(X.reshape(len(X),1))
         plt.ioff()
         plt.figure(figsize=(10,5))
@@ -56,6 +56,9 @@ def plot_acquisition(bounds,input_dim,model,Xdata,Ydata,acquisition_function,sug
             plt.show()
 
     if input_dim ==2:
+        # for i in range(2):
+        #     model.optimize(40)
+        model.optimize(10)
         X1 = np.linspace(bounds[0][0], bounds[0][1], 200)
         X2 = np.linspace(bounds[1][0], bounds[1][1], 200)
         x1, x2 = np.meshgrid(X1, X2)
@@ -65,8 +68,9 @@ def plot_acquisition(bounds,input_dim,model,Xdata,Ydata,acquisition_function,sug
         acqu_normalized = acqu_normalized.reshape((200,200))
         m, v = model.predict(X) 
         plt.figure(figsize=(15,5))
-        plt.subplot(1, 3, 1)            
-        plt.contourf(X1, X2, m.reshape(200,200),100)
+        plt.subplot(1, 3, 1)
+        size_color = np.linspace(-1.5, 6.0, 100, endpoint=True)
+        plt.contourf(X1, X2, m.reshape(200,200),size_color)
         plt.plot(Xdata[:,0], Xdata[:,1], 'r.', markersize=10, label=u'Observations')
         plt.colorbar()  
         plt.xlabel('X1')

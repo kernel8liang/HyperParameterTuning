@@ -10,6 +10,7 @@ except:
     pass
 import numpy as np
 from ..util.general import reshape
+from pylab import savefig
 
 
 class function2d:
@@ -33,8 +34,9 @@ class function2d:
         ax.zaxis.set_major_formatter(FormatStrFormatter('%.02f'))
         ax.set_title(self.name)    
             
-        plt.figure()    
-        plt.contourf(X1, X2, Y.reshape((100,100)),100)
+        plt.figure()
+        size_color = np.linspace(-1.5, 6.0, 100, endpoint=True)
+        plt.contourf(X1, X2, Y.reshape((100,100)),size_color)
         if (len(self.min)>1):    
             plt.plot(np.array(self.min)[:,0], np.array(self.min)[:,1], 'w.', markersize=20, label=u'Observations')
         else:
@@ -43,8 +45,8 @@ class function2d:
         plt.xlabel('X1')
         plt.ylabel('X2')
         plt.title(self.name)
-        plt.show()
-
+        # plt.show()
+        savefig("object_true_2d.pdf")
 
 class rosenbrock(function2d):
     '''
