@@ -143,19 +143,21 @@ def plot():
     alpha1=0.8
     # ----- Primal learning curves -----
     for i, z in zip(results['iter_num'], results['all_learning_curves']):
-        x, y = zip(*results['all_param_curves'][i])
-        if i == 0:
-            plt.plot([x[1]], [y[1]], '*', color='Black', label="Initial weights", markersize=15, alpha=alpha1)
-        plt.plot(x, y, '-o', color=colors[i], markersize=2, linewidth=2, alpha=alpha1)
-        plt.plot([x[-1]], [y[-1]], 'o', color=colors[i], label='Meta-iteration {0}'.format(i+1), markersize=9, alpha=alpha1)
+        if i !=1:
+            x, y = zip(*results['all_param_curves'][i])
+            if i == 0:
+                plt.plot([x[1]], [y[1]], '^', color='Black', label="Initial weights", markersize=10, alpha=alpha1)
+            plt.plot(x, y, '-o', color=colors[i], markersize=2, linewidth=2, alpha=alpha1)
+            plt.plot([x[-1]], [y[-1]], 'o', color=colors[i], label='Meta-iteration {0}'.format(i+1), markersize=9, alpha=alpha1)
+            plt.legend(numpoints=1, loc=0, frameon=True,  bbox_to_anchor=(0.4, 0.95),
+                  borderaxespad=0.0, prop={'family':'serif', 'size':'8'})
+            index = 40
+            X = np.linspace(x[1], x[-1], index)
+            Y = np.linspace(y[1], y[-1], index)
+            for k in range(0, index):
+                Y[k]=Y[0]+(pow(4,(X[k]-X[0]))-1)*(Y[index-1]-Y[0])/(pow(4,(X[index-1]-X[0]))-1)
 
-        index = 40
-        X = np.linspace(x[1], x[-1], index)
-        Y = np.linspace(y[1], y[-1], index)
-        for k in range(0, index):
-            Y[k]=Y[0]+(pow(3,(X[k]-X[0]))-1)*(Y[index-1]-Y[0])/(pow(3,(X[index-1]-X[0]))-1)
-
-        plt.plot(X, Y,'-o', color=colors[i], markersize=2, linewidth=2, alpha=alpha1)
+            plt.plot(X, Y,'-o', color=colors[i], markersize=2, linewidth=2, alpha=alpha1)
 
     # plt.show()
 
