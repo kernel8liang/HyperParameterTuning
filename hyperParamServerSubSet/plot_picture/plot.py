@@ -118,7 +118,7 @@ def plot():
 
     fig = plt.figure(0)
     fig.set_size_inches((6,4))
-
+    alpha=0.7
     # Show loss surface.
     x = np.arange(-1.0, 2.4, 0.05)
     y = np.arange(-0.0, 4.5, 0.05)
@@ -127,8 +127,8 @@ def plot():
     Z = zs.reshape(X.shape)
 
     v = np.linspace(-.1, 2.0, 15, endpoint=True)
-    plt.contour(X[1], Y[:,0], Z, 100, linewidths=0.5, colors='k')
-    plt.contourf(X[1], Y[:,0], Z, 100, cmap=plt.cm.jet)
+    plt.contour(X[1], Y[:,0], Z, 25, linewidths=0.3, colors='black', alpha=alpha)
+    plt.contourf(X[1], Y[:,0], Z, 25, cmap=plt.cm.RdYlGn, alpha=alpha)
     x = plt.colorbar(ticks=v)
     print x
 
@@ -140,27 +140,28 @@ def plot():
     #
     colors = ['Red', 'Green', 'Blue']
 
+    alpha1=0.8
     # ----- Primal learning curves -----
     for i, z in zip(results['iter_num'], results['all_learning_curves']):
         x, y = zip(*results['all_param_curves'][i])
         if i == 0:
-            plt.plot([x[1]], [y[1]], '*', color='Black', label="Initial weights", markersize=15)
-        plt.plot(x, y, '-o', color=colors[i], markersize=2, linewidth=2)
-        plt.plot([x[-1]], [y[-1]], 'o', color=colors[i], label='Meta-iteration {0}'.format(i+1), markersize=9)
+            plt.plot([x[1]], [y[1]], '*', color='Black', label="Initial weights", markersize=15, alpha=alpha1)
+        plt.plot(x, y, '-o', color=colors[i], markersize=2, linewidth=2, alpha=alpha1)
+        plt.plot([x[-1]], [y[-1]], 'o', color=colors[i], label='Meta-iteration {0}'.format(i+1), markersize=9, alpha=alpha1)
+
+        index = 40
+        X = np.linspace(x[1], x[-1], index)
+        Y = np.linspace(y[1], y[-1], index)
+        for k in range(0, index):
+            Y[k]=Y[0]+(pow(3,(X[k]-X[0]))-1)*(Y[index-1]-Y[0])/(pow(3,(X[index-1]-X[0]))-1)
+
+        plt.plot(X, Y,'-o', color=colors[i], markersize=2, linewidth=2, alpha=alpha1)
+
+    # plt.show()
 
 
-        X = np.linspace(x[1], x[-1], 200)
-        Y = np.linspace(y[1], y[-1], 200)
-        for k in range(0, 200):
-            Y[k]=Y[0]+(pow(2,(X[k]-X[0]))-1)*(Y[199]-Y[0])/(pow(2,(X[199]-X[0]))-1)
-
-        plt.plot(X, Y, '-o', color=colors[i], markersize=2, linewidth=2)
-
-    plt.show()
-
-
-    plt.savefig('learning_curves.png')
-    plt.savefig('learning_curves.pdf', pad_inches=0.05, bbox_inches='tight')
+    plt.savefig('learning_curves.png',dpi=1000, alpha=alpha)
+    plt.savefig('learning_curves.pdf', pad_inches=0.05,dpi=1000, bbox_inches='tight', alpha=alpha)
 
 if __name__ == '__main__':
     #results = run()
