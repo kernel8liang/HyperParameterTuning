@@ -134,7 +134,7 @@ class BNN():
             samples = rs.randn(num_samples, D) * np.exp(log_std) + mean
             lower_bound = gaussian_entropy(log_std) + np.mean(logprob(samples, t))
             loss = np.mean(logprob(samples, t))
-            print("loss is "+ str(loss))
+            # print("loss is "+ str(loss))
             return -lower_bound
 
         gradient = grad(variational_objective)
@@ -177,7 +177,7 @@ class BNN():
 
     def callback(self,params, t, g):
         lower = self.objective(params, t)
-        if t%499==0:
+        if t%99==0:
             print("Iteration {} lower bound {}".format(t, lower))
 
     def optimize(self,num_meta):
@@ -186,35 +186,29 @@ class BNN():
         for i in range(num_meta):
             self.update_param = adam(self.gradient, self.update_param,
                                   step_size=0.1, num_iters=100, callback=self.callback)
-        self.reset=False
 
 
-    def optimize_restarts(self, num_restarts=5, robust=False, verbose=True):
+    def optimize_restarts(self, num_restarts=30, robust=False, verbose=True):
         print("Optimizing variational parameters...")
 
         #todo: reset the num_iter, num_iter = 1 for the ease of debug
-        self.update_param = self.init_var_params.copy()
-        self.reset= True
-        print("current param is "+ str(self.init_var_params))
-        for i in range(num_restarts):
-            self.update_param = adam(self.gradient, self.update_param,
-                                  step_size=0.1, num_iters=100, callback=self.callback)
+        print("shape of x is: "+ str(self.X.shape))
+        if self.reset== True:
+            self.update_param = self.init_var_params.copy()
 
-        have = 6
-            # try:
-            #     if not parallel:
-            #         if i>0: self.randomize()
-            #         self.optimize(**kwargs)
-            #     else:
-            #         self.optimization_runs.append(jobs[i].get())
-            #
-            #     if verbose:
-            #         print(("Optimization restart {0}/{1}, f = {2}".format(i + 1, num_restarts, self.optimization_runs[-1].f_opt)))
-            # except Exception as e:
-            #     if robust:
-            #         print(("Warning - optimization restart {0}/{1} failed".format(i + 1, num_restarts)))
-            #     else:
-            #         raise e
+            print("current param is "+ str(self.init_var_params))
+
+            for i in range(num_restarts):
+                self.update_param = adam(self.gradient, self.update_param,
+                                      step_size=0.1, num_iters=100, callback=self.callback)
+
+            self.reset= False
+        else:
+            if self.X.shape[0]%10==0:
+                self.reset= True
+
+
+
 
 
     def predict(self, Xnew):
