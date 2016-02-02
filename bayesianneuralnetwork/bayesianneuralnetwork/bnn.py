@@ -9,17 +9,6 @@ import warnings
 from GPy.util.normalizer import MeanNorm
 logger = logging.getLogger("BNN")
 
-import matplotlib.pyplot as plt
-
-import autogradwithbay.numpy as np
-import autogradwithbay.numpy.random as npr
-import autogradwithbay.scipy.stats.norm as norm
-
-from autogradwithbay.examples.black_box_svi import black_box_variational_inference
-from autogradwithbay.examples.optimizers import adam
-
-
-import matplotlib.pyplot as plt
 
 import autogradwithbay.numpy as np
 import autogradwithbay.numpy.random as npr
@@ -27,8 +16,7 @@ import autogradwithbay.scipy.stats.norm as norm
 
 from autogradwithbay import grad
 from autogradwithbay.examples.optimizers import adam
-from funkyyak import grad as gradCore
-import sys
+
 
 
 class BNN():
@@ -82,8 +70,8 @@ class BNN():
 
         # Build variational objective.
         self.objective, self.gradient, self.unpack_params= \
-            black_box_variational_inference(self.log_posterior, self.num_weights,
-                                            num_samples=20)
+            self.black_box_variational_inference(self.log_posterior, self.num_weights,
+                                          20)
 
         self.rs = npr.RandomState(0)
         init_mean    = self.rs.randn(self.num_weights)
@@ -126,7 +114,7 @@ class BNN():
         """
         self.set_XY(Y=Y)
 
-    def black_box_variational_inference(logprob, D, num_samples):
+    def black_box_variational_inference(self,logprob, D, num_samples):
         """Implements http://arxiv.org/abs/1401.0118, and uses the
         local reparameterization trick from http://arxiv.org/abs/1506.02557"""
         # sys.stdout = Logger("experiment.txt")
@@ -351,100 +339,3 @@ class BNN():
     def copy(self):
         return self
 
-
-    # # def meanVar(self):
-    # #
-    # #
-    # #     return hypergrad
-    # # def varVar(self):
-    # #
-    # #
-    # #     return hypergrad
-    # def _inv_dist(self, X, X2=None):
-    #     """
-    #     Compute the elementwise inverse of the distance matrix, expecpt on the
-    #     diagonal, where we return zero (the distance on the diagonal is zero).
-    #     This term appears in derviatives.
-    #     """
-    #     dist = self._scaled_dist(X, X2).copy()
-    #     return 1./np.where(dist != 0., dist, np.inf)
-    #
-    # def gradients_X(self, dL_dK, X, X2=None):
-    #     """
-    #     Given the derivative of the objective wrt K (dL_dK), compute the derivative wrt X
-    #     """
-    #     from GPy.util.config import config
-    #     if config.getboolean('cython', 'working'):
-    #         return self._gradients_X_cython(dL_dK, X, X2)
-    #     else:
-    #         return self._gradients_X_pure(dL_dK, X, X2)
-    # def _gradients_X_pure(self, dL_dK, X, X2=None):
-    #     invdist = self._inv_dist(X, X2)
-    #     dL_dr = self.dK_dr_via_X(X, X2) * dL_dK
-    #     tmp = invdist*dL_dr
-    #     if X2 is None:
-    #         tmp = tmp + tmp.T
-    #         X2 = X
-    #
-    #     #The high-memory numpy way:
-    #     #d =  X[:, None, :] - X2[None, :, :]
-    #     #grad = np.sum(tmp[:,:,None]*d,1)/self.lengthscale**2
-    #
-    #     #the lower memory way with a loop
-    #     grad = np.empty(X.shape, dtype=np.float64)
-    #     for q in range(self.input_dim):
-    #         np.sum(tmp*(X[:,q][:,None]-X2[:,q][None,:]), axis=1, out=grad[:,q])
-    #     return grad/self.lengthscale**2
-    #
-    # def _gradients_X_cython(self, dL_dK, X, X2=None):
-    #     from GPy.kern._src import stationary_cython
-    #     invdist = self._inv_dist(X, X2)
-    #     dL_dr = self.dK_dr_via_X(X, X2) * dL_dK
-    #     tmp = invdist*dL_dr
-    #     if X2 is None:
-    #         tmp = tmp + tmp.T
-    #         X2 = X
-    #     X, X2 = np.ascontiguousarray(X), np.ascontiguousarray(X2)
-    #     grad = np.zeros(X.shape)
-    #
-    #     stationary_cython.grad_X(X.shape[0], X.shape[1], X2.shape[0], X, X2, tmp, grad)
-    #     return grad/self.lengthscale**2
-    #
-    # def predictive_gradients(self,Xnew):
-    #     """
-    #     Compute the derivatives of the predicted latent function with respect to X*
-    #
-    #     Given a set of points at which to predict X* (size [N*,Q]), compute the
-    #     derivatives of the mean and variance. Resulting arrays are sized:
-    #      dmu_dX* -- [N*, Q ,D], where D is the number of output in this GP (usually one).
-    #
-    #     Note that this is not the same as computing the mean and variance of the derivative of the function!
-    #
-    #      dv_dX*  -- [N*, Q],    (since all outputs have the same variance)
-    #     :param X: The points at which to get the predictive gradients
-    #     :type X: np.ndarray (Xnew x self.input_dim)
-    #     :returns: dmu_dX, dv_dX
-    #     :rtype: [np.ndarray (N*, Q ,D), np.ndarray (N*,Q) ]
-    #
-    #     """
-    #     dmu_dX = np.empty((Xnew.shape[0],Xnew.shape[1],self.output_dim))
-    #     for i in range(self.output_dim):
-    #         dmu_dX[:,:,i] = self.gradients_X(self.posterior.woodbury_vector[:,i:i+1].T, Xnew, self.X)
-    #
-    #     # gradients wrt the diagonal part k_{xx}
-    #     dv_dX = self.gradients_X(np.eye(Xnew.shape[0]), Xnew)
-    #     #grads wrt 'Schur' part K_{xf}K_{ff}^{-1}K_{fx}
-    #     alpha = -2.*np.dot(self.kern.K(Xnew, self.X),self.posterior.woodbury_inv)
-    #     dv_dX += self.gradients_X(alpha, Xnew, self.X)
-    #     return dmu_dX, dv_dX
-        #
-        #
-        # result = gradCore(self.predict)
-        # mean, variance = self.predict(Xnew)
-        # gradMean =
-        # gradVariance = gradCore(variance)
-        # # dmu_dX = gradCore(mean)
-        # # dv_dX = gradCore(variance)
-        # # return dmu_dX, dv_dX
-        # # getgrad = result(Xnew)
-        # return gradMean
