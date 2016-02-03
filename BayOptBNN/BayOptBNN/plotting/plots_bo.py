@@ -4,9 +4,13 @@
 
 import numpy as np
 from pylab import grid
-import matplotlib.pyplot as plt
-from pylab import savefig
+import matplotlib
+matplotlib.use('Agg') # do this before importing pyplot
+from matplotlib import pyplot as plt
+plt.ioff()
 
+
+from pylab import savefig
 
 def plot_acquisition(bounds,input_dim,model,Xdata,Ydata,acquisition_function,suggested_sample, filename = None):
     '''
@@ -72,9 +76,9 @@ def plot_acquisition(bounds,input_dim,model,Xdata,Ydata,acquisition_function,sug
         size_color = np.linspace(-1.5, 6.0, 100, endpoint=True)
         plt.contourf(X1, X2, m.reshape(200,200),size_color)
         plt.plot(Xdata[:,0], Xdata[:,1], 'r.', markersize=10, label=u'Observations')
-        plt.colorbar()  
+        plt.colorbar()
         plt.xlabel('X1')
-        plt.ylabel('X2')            
+        plt.ylabel('X2')
         plt.title('Posterior mean')
         plt.axis((bounds[0][0],bounds[0][1],bounds[1][0],bounds[1][1]))
         ##
@@ -98,18 +102,29 @@ def plot_acquisition(bounds,input_dim,model,Xdata,Ydata,acquisition_function,sug
         if filename!=None:savefig(filename)
 
 
-def plot_convergence(Xdata,best_Y,s_in_min, filename = None):
+def plot_convergence(Xdata,best_Y,s_in_min, filename = None,full = False):
     '''
     Plots to evaluate the convergence of standard Bayesian optimization algorithms
     '''
-    n = Xdata.shape[0]  
-    aux = (Xdata[1:n,:]-Xdata[0:n-1,:])**2      
-    distances = np.sqrt(aux.sum(axis=1))
+    nstart=0
+    n = Xdata.shape[0]
+    if full == True:
+        aux = (Xdata[1:n,:]-Xdata[0:n-1,:])**2
+        distances = np.sqrt(aux.sum(axis=1))
+    else:
+
+        if n >= 60:
+            nstart=n-60
+            aux = (Xdata[nstart+1:n,:]-Xdata[nstart:n-1,:])**2
+            distances = np.sqrt(aux.sum(axis=1))
+        else:
+            aux = (Xdata[1:n,:]-Xdata[0:n-1,:])**2
+            distances = np.sqrt(aux.sum(axis=1))
 
     ## Distances between consecutive x's
     plt.figure(figsize=(15,5))
     plt.subplot(1, 3, 1)
-    plt.plot(range(n-1), distances, '-ro')
+    plt.plot(range(n-nstart-1), distances, '-ro')
     plt.xlabel('Iteration')
     plt.ylabel('d(x[n], x[n-1])')
     plt.title('Distance between consecutive x\'s')
@@ -117,7 +132,7 @@ def plot_convergence(Xdata,best_Y,s_in_min, filename = None):
 
     # Estimated m(x) at the proposed sampling points
     plt.subplot(1, 3, 2)
-    plt.plot(range(n),best_Y,'-o')
+    plt.plot(range(n-nstart),best_Y[nstart:n],'-o')
     plt.title('Value of the best selected sample')
     plt.xlabel('Iteration')
     plt.ylabel('Best y')
@@ -125,16 +140,14 @@ def plot_convergence(Xdata,best_Y,s_in_min, filename = None):
 
     # Plot of the proposed v(x) at the proposed sampling points
     plt.subplot(1, 3, 3)
-    plt.errorbar(range(n),[0]*n , yerr=s_in_min[:,0],ecolor='b', capthick=1)
+    plt.errorbar(range(n-nstart),[0]*(n-nstart) , yerr=s_in_min[nstart:n,0],ecolor='b', capthick=1)
     plt.title('Predicted sd. in the next sample')
     plt.xlabel('Iteration')
-    plt.ylim(0,max(s_in_min[:,0])+np.sqrt(max(s_in_min[:,0])))
+    plt.ylim(0,max(s_in_min[nstart:n,0])+np.sqrt(max(s_in_min[nstart:n,0])))
     plt.ylabel('CI (centered at zero)')
     grid(True)
-    if filename!=None:
-        savefig(filename)
-    else:
-        plt.show()
+    savefig(filename)
+
 
 
     

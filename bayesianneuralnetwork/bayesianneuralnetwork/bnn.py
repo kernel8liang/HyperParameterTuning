@@ -193,19 +193,31 @@ class BNN():
 
         #todo: reset the num_iter, num_iter = 1 for the ease of debug
         print("shape of x is: "+ str(self.X.shape))
-        if self.reset== True:
-            self.update_param = self.init_var_params.copy()
 
-            print("current param is "+ str(self.init_var_params))
+        self.update_param = self.init_var_params.copy()
 
-            for i in range(num_restarts):
-                self.update_param = adam(self.gradient, self.update_param,
-                                      step_size=0.1, num_iters=100, callback=self.callback)
+        print("current param is "+ str(self.init_var_params))
 
-            self.reset= False
-        else:
-            if self.X.shape[0]%10==0:
-                self.reset= True
+        for i in range(num_restarts):
+            self.update_param = adam(self.gradient, self.update_param,
+                                  step_size=0.1, num_iters=100, callback=self.callback)
+
+
+
+        #
+        # if self.reset== True:
+        #     self.update_param = self.init_var_params.copy()
+        #
+        #     print("current param is "+ str(self.init_var_params))
+        #
+        #     for i in range(num_restarts):
+        #         self.update_param = adam(self.gradient, self.update_param,
+        #                               step_size=0.1, num_iters=100, callback=self.callback)
+        #
+        #     self.reset= False
+        # else:
+        #     if self.X.shape[0]%1==0:
+        #         self.reset= True
 
 
 
