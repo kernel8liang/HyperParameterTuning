@@ -68,7 +68,7 @@ def big_data_optimization(plots=True):
     if plots:
         BO_demo_big_data.plot_convergence("bnn_covergence_final_inputdim1000.pdf",full=True)
     BO_demo_big_data.save_report("bnn_report_final_inputdim1000.pdf")
-    
+    BO_demo_big_data.save_result()
     return BO_demo_big_data
 
 

@@ -7,6 +7,7 @@ import time
 from ..util.general import best_value, reshape, spawn
 # from ..core.optimization import lp_batch_optimization, random_batch_optimization, predictive_batch_optimization
 from ..core.optimization import predictive_batch_optimization
+import pickle
 try:
     from ..plotting.plots_bo import plot_acquisition, plot_convergence
 except:
@@ -127,7 +128,13 @@ class BO(object):
             # --- Update stop conditions
             k +=1
             distance_lastX = np.sqrt(sum((self.X[self.X.shape[0]-1,:]-self.X[self.X.shape[0]-2,:])**2))
-            self.plot_acquisition("bnnoutput"+str(k)+".pdf")
+            if (k-1)%20==0:
+                self.Y_best = best_value(self.Y)
+                self.save_report("bnn_report_"+str(k)+".txt")
+            if (k-1)%60==0:
+                self.plot_acquisition("bnnoutput"+str(k)+".pdf")
+                self.plot_convergence("bnn_covergence_"+str(k)+".pdf")
+
 
 
         # --- Stop messages and execution time          
@@ -246,6 +253,12 @@ class BO(object):
             file.write('Minumum location:           ' + str(self.X[np.argmin(self.Y),:]).strip('[]') +'\n') 
     
             file.close()
+
+
+    def save_result(self, resultName='BO_BNN-resultValue.pkl'):
+        results = self.X, self.Y_best,self.s_in_min
+        with open(resultName, 'w') as f:
+            pickle.dump(results, f, 1)
 
 
 
