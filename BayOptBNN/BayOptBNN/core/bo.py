@@ -214,7 +214,7 @@ class BO(object):
         """  
         return plot_acquisition(self.bounds,self.input_dim,self.model,self.model.X,self.model.Y,self.acquisition_func.acquisition_function,self.suggested_sample,filename)
 
-    def plot_convergence(self,filename=None):
+    def plot_convergence(self,filename=None,full= False):
         """
         Makes three plots to evaluate the convergence of the model
             plot 1: Iterations vs. distance between consecutive selected x's
@@ -222,7 +222,7 @@ class BO(object):
             plot 3: Iterations vs. the variance of the current model in the selected sample.
         :param filename: name of the file where the plot is saved
         """
-        return plot_convergence(self.X,self.Y_best,self.s_in_min,filename)
+        return plot_convergence(self.X,self.Y_best,self.s_in_min,filename,full=full)
     
     def get_evaluations(self):
         return self.X.copy(), self.Y.copy()
@@ -255,7 +255,7 @@ class BO(object):
             file.close()
 
 
-    def save_result(self, resultName='BO_BNN-resultValue.pkl'):
+    def save_result(self, resultName='BO_GP-resultValue.pkl'):
         results = self.X, self.Y_best,self.s_in_min
         with open(resultName, 'w') as f:
             pickle.dump(results, f, 1)
