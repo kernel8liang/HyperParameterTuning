@@ -128,12 +128,20 @@ class BO(object):
             # --- Update stop conditions
             k +=1
             distance_lastX = np.sqrt(sum((self.X[self.X.shape[0]-1,:]-self.X[self.X.shape[0]-2,:])**2))
-            if (k-1)%20==0:
+            # if (k-1)%20==0:
+            #     self.Y_best = best_value(self.Y)
+            #     self.save_report("bnn_report_"+str(k)+".txt")
+            # if (k-1)%60==0:
+            #     self.plot_acquisition("bnnoutput"+str(k)+".pdf")
+            #     self.plot_convergence("bnn_covergence_"+str(k)+".pdf")
+            if (k-1)%1==0:
                 self.Y_best = best_value(self.Y)
                 self.save_report("bnn_report_"+str(k)+".txt")
-            if (k-1)%60==0:
+            if (k-1)%1==0:
                 self.plot_acquisition("bnnoutput"+str(k)+".pdf")
                 self.plot_convergence("bnn_covergence_"+str(k)+".pdf")
+            if k%50==0:
+                self.save_result("bnn_XY_result_"+str(k)+".txt")
 
 
 

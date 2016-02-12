@@ -9,12 +9,13 @@ from ..util.general import samples_multidimensional_uniform, reshape
 from ..util.stats import initial_design
 import warnings
 from bayesianneuralnetwork.bnn import BNN
+from bayesianneuralnetwork.bnn1 import BNN1
 warnings.filterwarnings("ignore")
 
 
 class BayesianOptimizationBNN(BO):
     def __init__(self, f, bounds=None,  X=None, Y=None, numdata_initial_design = None,type_initial_design='random', model_optimize_interval=1, acquisition='EI',
-        acquisition_par= 0.00, model_optimize_restarts=10, num_inducing=None, normalize=False,BNN=True,layer_sizes =[1, 10, 10, 1],L2_reg=0.01,
+        acquisition_par= 0.00, model_optimize_restarts=10, num_inducing=None, normalize=False,BNN=True,layer_sizes =[1, 10, 10, 1],L2_reg=0.01, BNN1=True,
         exact_feval=False, verbosity=0):
         '''
         Bayesian Optimization using EI, MPI and LCB (or UCB) acquisition functions.
@@ -43,6 +44,7 @@ class BayesianOptimizationBNN(BO):
         # ------- Get default values
         self.num_inducing = num_inducing
         self.BNN = BNN
+        self.BNN1=BNN1
         self.layer_sizes=layer_sizes
         self.L2_reg= L2_reg
         self.input_dim = len(bounds)
@@ -77,17 +79,17 @@ class BayesianOptimizationBNN(BO):
         if X==None:
             if Y!=None:
                 warnings.warn("User supplied initial Y without matching X")
-            self.X = initial_design(self.type_initial_design,self.bounds, self.numdata_initial_design)
+            self.X = initial_design(self.type_initial_design,self.bounds, self.numdata_initial_design).astype(np.float32)
             self.Y = f(self.X)
 
         # case 1: X but not Y given
         elif Y==None:
-            self.X = X
+            self.X = X.astype(np.float32)
             self.Y = f(self.X)
 
         # case 3: X and Y given
         else:
-            self.X = X
+            self.X = X.astype(np.float32)
             self.Y = Y
 
         self._init_model()
@@ -136,7 +138,12 @@ class BayesianOptimizationBNN(BO):
         #     self.model.Gaussian_noise.constrain_fixed(1e-6, warning=False) #to avoid numerical problems
         # else:
         #     self.model.Gaussian_noise.constrain_bounded(1e-6,1e6, warning=False) #to avoid numerical problems
+
+        # bnn is the function with
+        #bnn1 is the activation function tanh
         if self.BNN==True:
 
             self.model=BNN(self.X,self.Y, layer_sizes =self.layer_sizes,L2_reg=0.01)
+        else:
+            self.model=BNN1(self.X,self.Y, layer_sizes =self.layer_sizes,L2_reg=0.01)
 

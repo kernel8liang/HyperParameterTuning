@@ -34,10 +34,10 @@ def big_data_optimization(plots=True):
     import BayOptBNN
     from numpy.random import seed
     seed(12345)
-    
+
     # --- Objective function
-    objective_noisy = BayOptBNN.fmodels.experimentsNd.alpine2(5,sd = 0.1)     # Alpine2 function in dimension 5.
-    bounds = objective_noisy.bounds                                         # problem constrains 
+    objective_noisy = BayOptBNN.fmodels.experimentMNIST
+    bounds = objective_noisy.bounds                                         # problem constrains
 
     # --- Problem definition and optimization
     BO_demo_big_data = BayOptBNN.methods.BayesianOptimizationBNN(f=objective_noisy.f,  # function to optimize
@@ -45,24 +45,26 @@ def big_data_optimization(plots=True):
                                             acquisition='LCB',             # Selects the Lower Confidence Bound criterion
                                             acquisition_par = 2,           # parameter of the acquisition function
                                             normalize = True,              # normalized acquisition function
-                                            layer_sizes =[5, 30, 30, 1],
-                                            numdata_initial_design = 1)        # Initialize the model with 1000 points
+                                            layer_sizes =[5, 20, 20, 1],
+                                            numdata_initial_design = 10,
+                                            BNN=False,
+                                            BNN1=True)        ## Initialize the model with 1000 points
 
 
 
     # Run the optimization:
     #it will generate one new training sample using the function every mate-iteration
-    max_iter = 1000
+    max_iter = 100
 
     print '-----'
     print '----- Running demo. It may take a few seconds.'
     print '-----'
-    
+
     # --- Run the optimization                                              # evaluation budget
     BO_demo_big_data.run_optimization(max_iter,                             # Number of iterations
                                 acqu_optimize_method = 'fast_random',       # method to optimize the acq. function
                                 acqu_optimize_restarts = 30,                # number of local optimizers
-                                eps = 10e-6,                                # secondary stop criteria (apart from the number of iterations) 
+                                eps = 10e-6,                                # secondary stop criteria (apart from the number of iterations)
                                 true_gradients = False)                     # The gradients of the acquisition function are approximated (faster)
     # --- Plots
     if plots:
