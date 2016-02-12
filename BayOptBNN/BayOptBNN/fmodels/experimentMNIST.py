@@ -21,14 +21,14 @@ class mnistExperiment:
     def __init__(self,input_dim, bounds=None, sd=None):
         self.input_dim = 4
         #learning-rate, momentum, dropout1, dropout2
-        if bounds == None: self.bounds = [(0.001,4),(0.5,2),(0.2,0.7),(0.2,0.7)]
+        if bounds == None: self.bounds = [(0.001,0.1),(0.6,0.9),(0.2,0.7),(0.2,0.7)]
         else: self.bounds = bounds
         # self.min = [(0.0898,-0.7126),(-0.0898,0.7126)]
         # self.fmin = 0.005
         if sd==None: self.sd = 0
         else: self.sd=sd
         self.name = 'mnist '
-        self.count=len(os.listdir(os.getcwd()))-1
+        self.count=len(os.listdir(os.getcwd()+"/train"))
 
 
     def f(self,params):
@@ -37,17 +37,18 @@ class mnistExperiment:
         size=params.shape[0]
         for i in range(0,size):
             resulttemp = []
-            result = self.run_mnist_small(params[i])
+            result = self.run_mnist_small(params[i].tolist())
+            # result = self.tryit()
             resulttemp.append(result)
             resultfinal.append(resulttemp)
         resultfinal = np.array(resultfinal)
         return resultfinal
-
+    def tryit(self):
+        return 0.1
     def run_mnist_small(self,params):
 
-        # learning_rate, momentum, dropout1, dropout2 = params
 
-        f = file("/home/jie/d3/fujie/hyper_parameter_tuning/BayOptBNN/experiment/BNN_MNIST/meta10/BO_BNN_mnist"+str(self.count)+".txt", 'w')
+        f = file("/home/jie/d3/fujie/hyper_parameter_tuning/BayOptBNN/experiment/BNN_MNIST/meta10/train/BO_BNN_mnist"+str(self.count)+".txt", 'w')
         orig_stdout = sys.stdout
 
         sys.stdout = f
@@ -55,10 +56,9 @@ class mnistExperiment:
         #
 
         #
-        learning_rate = 3.71853471
-        momentum = 0.9
-        dropout1 = 0.25
-        dropout2 = 0.5
+        print(params)
+
+        learning_rate, momentum, dropout1, dropout2 = params
 
         batch_size = 128
         nb_classes = 10
@@ -80,6 +80,8 @@ class mnistExperiment:
         X_test = X_test.reshape(X_test.shape[0], 1, img_rows, img_cols)
         X_train = X_train.astype('float32')
         X_test = X_test.astype('float32')
+        # y_test= y_test.astype('float32')
+        # y_train= y_train.astype('float32')
         X_train /= 255
         X_test /= 255
         print('X_train shape:', X_train.shape)
