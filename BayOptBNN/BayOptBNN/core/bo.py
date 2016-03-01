@@ -141,7 +141,7 @@ class BO(object):
                 self.plot_acquisition("bnnoutput"+str(k)+".pdf")
                 self.plot_convergence("bnn_covergence_"+str(k)+".pdf")
             if k%50==0:
-                self.save_result("bnn_XY_result_"+str(k)+".txt")
+                self.save_result("bnn_XY_result_"+str(k)+".pdf")
 
 
 
@@ -263,7 +263,7 @@ class BO(object):
             file.close()
 
 
-    def save_result(self, resultName='BO_GP-resultValue.pkl'):
+    def save_result(self, resultName='BO_BNN-resultValue.pkl'):
         results = self.X, self.Y_best,self.s_in_min
         with open(resultName, 'w') as f:
             pickle.dump(results, f, 1)
