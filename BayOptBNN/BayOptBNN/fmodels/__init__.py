@@ -6,5 +6,6 @@ try:
     import experiments2d
     import experimentsNd
     import experimentMNIST
+    import experimentCIFAR10
 except:
     pass
