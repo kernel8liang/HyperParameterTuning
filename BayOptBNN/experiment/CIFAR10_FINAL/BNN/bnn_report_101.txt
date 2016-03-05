@@ -1,0 +1,14 @@
+--------------------------------- Results file --------------------------------------
+BO_BNN Version 1.0.0 
+Date and time:              Thu 03 Mar 2016 12:15:37 AM
+Optimization completed:     NO,102 samples collected.
+Optimization time:          1456823779.94 seconds.
+--------------------------------- Problem set up ------------------------------------
+Problem Dimension:          5
+Problem bounds:             (0.001, 0.1), (0.6, 0.9), (0.2, 0.7), (0.2, 0.7), (0.2, 0.7)
+Batch size:                 1
+Acquisition:                LCB
+Acquisition optimizer:      fast_random
+--------------------------------- Summary ------------------------------------------
+Best found minimum:          0.57977042
+Minumum location:            0.00428199  0.9         0.44448828  0.2599703   0.54601188
