@@ -1,0 +1,1 @@
+difference between the bnn and bnn1 is the activation function
